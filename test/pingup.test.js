@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @author Dario Olivini
  * @copyright 2016 Dario Olivini. All rights reserved.
@@ -6,5 +7,5 @@
 var assert = require('assert');
 
 describe('Pingup', function() {
-    "use strict";
+   it("Test 1");
 });

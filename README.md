@@ -1,4 +1,5 @@
 # pingup
+[![Build Status](https://travis-ci.org/Xflofoxx/pingup.svg?branch=master)](https://travis-ci.org/Xflofoxx/pingup)
 [![Coverage Status](https://coveralls.io/repos/github/Xflofoxx/pingup/badge.svg?branch=master)](https://coveralls.io/github/Xflofoxx/pingup?branch=master)
 [![Dependency Status](https://david-dm.org/Xflofoxx/pingup.svg)](https://david-dm.org/Xflofoxx/pingup)
 

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @author Dario Olivini
  * @copyright 2016 Dario Olivini. All rights reserved.
