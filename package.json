@@ -1,0 +1,29 @@
+{
+  "name": "pingup",
+  "version": "0.0.1",
+  "description": "A node.js tool for monitoring network services and their status.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xflofoxx/pingup.git"
+  },
+  "keywords": [
+    "ping",
+    "ICMP",
+    "ES6"
+  ],
+  "author": "Dario Olivini <xflofoxx@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Xflofoxx/pingup/issues"
+  },
+  "homepage": "https://github.com/Xflofoxx/pingup#readme",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "mocha": "^2.4.5"
+  }
+}
