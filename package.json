@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "istanbul cover node_modules/.bin/_mocha -- -- -u exports -R spec test/**/* --timeout 60000",
-    "coveralls": "cat coverage/lcov.info | coveralls"
+    "test": "./node_modules/istanbul/lib/cli.js cover ./node_modules/.bin/_mocha",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Xflofoxx/pingup#readme",
   "devDependencies": {
+    "coveralls": "^2.11.9",
     "grunt": "^1.0.1",
     "grunt-mocha-istanbul": "^4.0.2",
     "istanbul": "^0.4.3",
