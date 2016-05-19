@@ -1,20 +1,24 @@
+"use strict";
+// require("babel-register");
+
 module.exports = function(grunt){
+
     grunt.initConfig({
         mocha_istanbul: {
             coverage: {
-                src: 'test/**', // a folder works nicely
+                src: ['test/**/*.test.es6'],
                 options: {
-                    mask: '*.test.js'
+                    mochaOptions: ['--compilers','es6:babel-register'],
+                    scriptPath: require.resolve('./node_modules/isparta/bin/isparta'),
+                    root: 'src', // define where the cover task should consider the root of libraries that are covered by tests
+                    reportFormats: ['cobertura','lcov']
                 }
             },
             coveralls: {
-                src: ['test/**'], // multiple folders also works
+                src: ['test/**/*.test.es6'], // multiple folders also works
                 options: {
+                    scriptPath: require.resolve('./node_modules/isparta/bin/isparta'),
                     coverage:true, // this will make the grunt.event.on('coverage') event listener to be triggered
-                    check: {
-                        lines: 75,
-                        statements: 75
-                    },
                     root: './src', // define where the cover task should consider the root of libraries that are covered by tests
                     reportFormats: ['cobertura','lcovonly']
                 }
