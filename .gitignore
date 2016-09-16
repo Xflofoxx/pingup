@@ -31,6 +31,4 @@ build/Release
 node_modules
 '.idea'
 
-# Generated babel files
-src/**/*.js
-test/**/*.js
+/node_modules/

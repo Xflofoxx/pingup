@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --compilers es6:babel-register -R spec test/**/*.es6 --recursive"
+    "test": "mocha -R spec test/**/*.test.js --recursive"
   },
   "repository": {
     "type": "git",
@@ -23,11 +23,10 @@
   },
   "homepage": "https://github.com/Xflofoxx/pingup#readme",
   "devDependencies": {
-    "babel-cli": "^6.9.0",
-    "babel-preset-es2015-node": "^6.0.1",
-    "babel-register": "^6.9.0",
     "coveralls": "^2.11.9",
+    "eslint": "^3.5.0",
     "grunt": "^1.0.1",
+    "grunt-cli": "^1.2.0",
     "grunt-mocha-istanbul": "^4.0.2",
     "isparta": "^4.0.0",
     "istanbul": "^0.4.3",

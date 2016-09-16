@@ -6,18 +6,18 @@ module.exports = function(grunt){
     grunt.initConfig({
         mocha_istanbul: {
             coverage: {
-                src: ['test/**/*.test.es6'],
+                src: ['test/**/*.test.js'],
                 options: {
-                    mochaOptions: ['--compilers','es6:babel-register'],
-                    scriptPath: require.resolve('./node_modules/isparta/bin/isparta'),
+                    // mochaOptions: ['--compilers','es6:babel-register'],
+                    // scriptPath: require.resolve('./node_modules/isparta/bin/isparta'),
                     root: 'src', // define where the cover task should consider the root of libraries that are covered by tests
                     reportFormats: ['cobertura','lcov']
                 }
             },
             coveralls: {
-                src: ['test/**/*.test.es6'], // multiple folders also works
+                src: ['test/**/*.test.js'], // multiple folders also works
                 options: {
-                    scriptPath: require.resolve('./node_modules/isparta/bin/isparta'),
+                    // scriptPath: require.resolve('./node_modules/isparta/bin/isparta'),
                     coverage:true, // this will make the grunt.event.on('coverage') event listener to be triggered
                     root: './src', // define where the cover task should consider the root of libraries that are covered by tests
                     reportFormats: ['cobertura','lcovonly']
