@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
+<<<<<<< HEAD
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "pingup", "pingup.esproj", "{17CD2361-ACFC-4108-AF44-A7D37D014427}"
+=======
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "pingup", "pingup.njsproj", "{A87AA341-B783-4412-A86D-D7B480C31894}"
+>>>>>>> 1023cf0 (Add project files.)
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +15,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+<<<<<<< HEAD
 		{17CD2361-ACFC-4108-AF44-A7D37D014427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17CD2361-ACFC-4108-AF44-A7D37D014427}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17CD2361-ACFC-4108-AF44-A7D37D014427}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{17CD2361-ACFC-4108-AF44-A7D37D014427}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17CD2361-ACFC-4108-AF44-A7D37D014427}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17CD2361-ACFC-4108-AF44-A7D37D014427}.Release|Any CPU.Deploy.0 = Release|Any CPU
+=======
+		{A87AA341-B783-4412-A86D-D7B480C31894}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A87AA341-B783-4412-A86D-D7B480C31894}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A87AA341-B783-4412-A86D-D7B480C31894}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A87AA341-B783-4412-A86D-D7B480C31894}.Release|Any CPU.Build.0 = Release|Any CPU
+>>>>>>> 1023cf0 (Add project files.)
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
