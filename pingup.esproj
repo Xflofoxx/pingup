@@ -4,5 +4,12 @@
     <BuildCommand>npm run build</BuildCommand>
     <!--Command to run on project clean-->
     <CleanCommand>npm run clean</CleanCommand>
+    <BuildOutputFolder>
+    </BuildOutputFolder>
   </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties _1vscode_4launch_1json__JsonSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
