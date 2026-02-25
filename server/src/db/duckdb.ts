@@ -5,11 +5,15 @@ const DB_PATH = join(import.meta.dir, "../../data/pingup.db");
 
 let db: Database | null = null;
 
-export function getAnalyticsDb(): Database {
+export function getDb(): Database {
   if (!db) {
     db = new Database(DB_PATH);
   }
   return db;
+}
+
+export function getAnalyticsDb(): Database {
+  return getDb();
 }
 
 export function closeAnalyticsDb(): void {

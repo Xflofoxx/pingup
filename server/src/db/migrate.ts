@@ -61,6 +61,18 @@ sqliteDb.exec(`
   )
 `);
 
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS discovery (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id TEXT,
+    scan_timestamp TEXT,
+    host_ip TEXT,
+    latency INTEGER,
+    ports TEXT,
+    scan_duration INTEGER
+  )
+`);
+
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_commands_agent ON commands(agent_id)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_commands_status ON commands(status)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_metrics_agent ON metrics(agent_id)`);
