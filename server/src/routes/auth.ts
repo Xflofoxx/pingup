@@ -1,11 +1,14 @@
 import { Hono } from "hono";
 import { registerUser, loginUser, verifyToken, logoutUser, SignJWT } from "../services/auth.ts";
-import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword, getUserByUsername } from "../services/users.ts";
+import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword, getUserByUsername, logAudit } from "../services/users.ts";
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "pingup-secret-key-change-in-production");
 
 function getCookie(c: any, name: string): string | undefined {
-  return c.req.cookie(name);
+  const cookie = c.req.raw.headers.get("Cookie");
+  if (!cookie) return undefined;
+  const match = cookie.match(new RegExp(`${name}=([^;]+)`));
+  return match ? match[1] : undefined;
 }
 
 function setCookie(c: any, name: string, value: string, options?: any): void {
@@ -159,7 +162,7 @@ authRouter.post("/login", async (c) => {
 });
 
 authRouter.post("/logout", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (token) {
     const payload = await verifyToken(token);
@@ -174,7 +177,7 @@ authRouter.post("/logout", async (c) => {
 });
 
 authRouter.get("/me", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -205,7 +208,7 @@ authRouter.get("/me", async (c) => {
 export const usersRouter = new Hono();
 
 usersRouter.get("/", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -232,7 +235,7 @@ usersRouter.get("/", async (c) => {
 });
 
 usersRouter.get("/:id", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -262,7 +265,7 @@ usersRouter.get("/:id", async (c) => {
 });
 
 usersRouter.put("/:id/role", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -291,7 +294,7 @@ usersRouter.put("/:id/role", async (c) => {
 });
 
 usersRouter.post("/:id/disable", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -314,7 +317,7 @@ usersRouter.post("/:id/disable", async (c) => {
 });
 
 usersRouter.post("/:id/enable", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -337,7 +340,7 @@ usersRouter.post("/:id/enable", async (c) => {
 });
 
 usersRouter.delete("/:id", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -367,7 +370,7 @@ usersRouter.delete("/:id", async (c) => {
 export const auditRouter = new Hono();
 
 auditRouter.get("/", async (c) => {
-  const token = c.req.cookie("auth_token");
+  const token = getCookie(c, "auth_token");
   
   if (!token) {
     return c.json({ error: "Not authenticated" }, 401);
