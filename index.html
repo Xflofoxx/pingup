@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PingUp Documentation</title>
+  <meta name="description" content="PingUp GitHub Pages from root (doc branch)" />
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --fg: #1f2937;
+      --accent: #2563eb;
+      --card: #ffffff;
+      --shadow: 0 6px 18px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; background: linear-gradient(135deg, #f7fbff 0%, #eef6ff 100%); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif; }
+    header { padding: 2rem; text-align: center; }
+    h1 { margin: 0; font-size: 2rem; }
+    nav { margin-top: 0.5rem; }
+    nav a { margin: 0 .5rem; color: var(--accent); text-decoration: none; font-weight: 600; }
+    main { max-width: 900px; margin: 0 auto; padding: 1rem 1.25rem; }
+    .card { background: var(--card); border-radius: 12px; padding: 1rem; box-shadow: var(--shadow); }
+    footer { text-align: center; padding: 1rem; color: #6b7280; font-size: 0.9rem; }
+    @media (max-width: 600px) { h1 { font-size: 1.5rem; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PingUp Documentation</h1>
+    <p>A minimal GitHub Pages site hosted from root on the doc branch</p>
+    <nav aria-label="Main navigation">
+      <a href="#getting-started">Getting started</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+  <main id="content" class="card" role="main">
+    <section id="getting-started">
+      <h2>Getting started</h2>
+      <p>This page serves as a lightweight static landing page for GitHub Pages. It uses the root of the doc branch as the source.</p>
+    </section>
+    <section id="about">
+      <h2>About</h2>
+      <p>Source repository: <a href="https://github.com/Xflofoxx/pingup">https://github.com/Xflofoxx/pingup</a></p>
+    </section>
+  </main>
+  <footer>Hosted on GitHub Pages • minimal, static, accessible</footer>
+</body>
+</html>
