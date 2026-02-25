@@ -282,7 +282,7 @@ const PUBLIC_DASHBOARD = `
 
         <div class="glass-card rounded-3xl p-8 group cursor-default">
           <div class="feature-icon w-16 h-16 rounded-2xl flex items-center justify-center mb-5">
-            <i class="fas fa-radar text-white text-2xl"></i>
+            <i class="fas fa-network-wired text-white text-2xl"></i>
           </div>
           <h3 class="text-xl font-semibold text-white mb-3 group-hover:text-green-400 transition">Scansione Rete</h3>
           <p class="text-gray-400 leading-relaxed">Scopri tutti i dispositivi sulla tua rete con ICMP ping avanzato e scansione delle porte TCP/UDP.</p>
