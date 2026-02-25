@@ -1,0 +1,48 @@
+name: SPEC Validator
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  spec-validator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Fetch base branch for diff
+        run: |
+          git fetch origin main --depth=1 || true
+
+      - name: Discover changed JSON artifacts
+        id: find_json
+        run: |
+          set -euo pipefail
+          BASE="origin/main"
+          if git diff --name-only "$BASE"...HEAD | grep -Eq '\.json$'; then
+            JSON_FILES=$(git diff --name-only "$BASE"...HEAD | tr '\n' ' ')
+            echo "JSON_FILES=${JSON_FILES}" >> "$GITHUB_OUTPUT"
+          else
+            echo "JSON_FILES=" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run SPEC validator on artifacts
+        run: |
+          set -e
+          if [ -z "${{ steps.find_json.outputs.JSON_FILES }}" ]; then
+            echo "No JSON artifacts changed in this PR. Skipping validation."
+            exit 0
+          fi
+          for f in ${{ steps.find_json.outputs.JSON_FILES }}; do
+            echo "Validating $f"
+            node spec/validator/validator.js "$f"
+          done
