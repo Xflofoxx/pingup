@@ -1,9 +1,9 @@
 # Server Specification
 
-> **Version**: 1.1.0  
+> **Version**: 1.2.0  
 > **Component**: Server  
-> **Related Requirements**: SERV-001 through SERV-010  
-> **Status**: Implementation Ready
+> **Related Requirements**: SERV-001 through SERV-035  
+> **Status**: Proposed
 
 ## 1. Overview
 
@@ -291,6 +291,31 @@ bun run lint
 - [ ] SERV-008: Health check endpoint → GET /health
 - [ ] SERV-009: Query metrics history → routes/metrics.ts
 - [ ] SERV-010: Store network discovery data → routes/discovery.ts
+- [ ] SERV-011: Dashboard authentication (TOTP) → routes/auth.ts
+- [ ] SERV-012: Dashboard RBAC → middleware/auth.ts
+- [ ] SERV-013: Dashboard pages → routes/dashboard.ts
+- [ ] SERV-014: User management → routes/auth.ts
+- [ ] SERV-015: Username/password authentication → routes/auth.ts
+- [ ] SERV-016: Alert thresholds → services/alerts.ts
+- [ ] SERV-017: Alert notifications → services/notifications.ts
+- [ ] SERV-018: Agent groups → services/groups.ts
+- [ ] SERV-019: Scheduled reports → services/reports.ts
+- [ ] SERV-020: Prometheus export → routes/export.ts
+- [ ] SERV-021: Grafana integration → routes/grafana.ts
+- [ ] SERV-022: SSL certificate monitoring → services/certificates.ts
+- [ ] SERV-023: Bandwidth monitoring → services/bandwidth.ts
+- [ ] SERV-024: Process monitoring → services/processes.ts
+- [ ] SERV-025: Service monitoring → services/services.ts
+- [ ] SERV-026: Custom metrics → routes/metrics.ts
+- [ ] SERV-027: API rate limiting → middleware/ratelimit.ts
+- [ ] SERV-028: LDAP integration → services/ldap.ts
+- [ ] SERV-029: Backup and restore → services/backup.ts
+- [ ] SERV-030: API access tokens → services/tokens.ts
+- [ ] SERV-031: Audit log export → routes/audit.ts
+- [ ] SERV-032: Network topology map → routes/topology.ts
+- [ ] SERV-033: Maintenance window → services/maintenance.ts
+- [ ] SERV-034: Data retention policies → services/retention.ts
+- [ ] SERV-035: Multi-tenant support → services/tenants.ts
 
 ## 10. Cross-References
 
@@ -308,3 +333,28 @@ bun run lint
 | SERV-008 | spec/server/SERV-008-health-check-endpoint.md | Health check requirement |
 | SERV-009 | spec/server/SERV-009-query-metrics-history.md | Metrics history requirement |
 | SERV-010 | spec/server/SERV-010-store-network-discovery-data.md | Network discovery requirement |
+| SERV-011 | spec/server/SERV-011-dashboard-authentication.md | Dashboard auth requirement |
+| SERV-012 | spec/server/SERV-012-dashboard-rbac.md | Dashboard RBAC requirement |
+| SERV-013 | spec/server/SERV-013-dashboard-pages.md | Dashboard pages requirement |
+| SERV-014 | spec/server/SERV-014-user-management.md | User management requirement |
+| SERV-015 | spec/server/SERV-015-username-password-authentication.md | Password auth requirement |
+| SERV-016 | spec/server/SERV-016-alert-thresholds.md | Alert thresholds |
+| SERV-017 | spec/server/SERV-017-alert-notifications.md | Alert notifications |
+| SERV-018 | spec/server/SERV-018-agent-groups.md | Agent groups |
+| SERV-019 | spec/server/SERV-019-scheduled-reports.md | Scheduled reports |
+| SERV-020 | spec/server/SERV-020-prometheus-export.md | Prometheus export |
+| SERV-021 | spec/server/SERV-021-grafana-integration.md | Grafana integration |
+| SERV-022 | spec/server/SERV-022-ssl-certificate-monitoring.md | SSL monitoring |
+| SERV-023 | spec/server/SERV-023-bandwidth-monitoring.md | Bandwidth monitoring |
+| SERV-024 | spec/server/SERV-024-process-monitoring.md | Process monitoring |
+| SERV-025 | spec/server/SERV-025-service-monitoring.md | Service monitoring |
+| SERV-026 | spec/server/SERV-026-custom-metrics.md | Custom metrics |
+| SERV-027 | spec/server/SERV-027-api-rate-limiting.md | Rate limiting |
+| SERV-028 | spec/server/SERV-028-ldap-integration.md | LDAP integration |
+| SERV-029 | spec/server/SERV-029-backup-restore.md | Backup and restore |
+| SERV-030 | spec/server/SERV-030-api-access-tokens.md | API tokens |
+| SERV-031 | spec/server/SERV-031-audit-log-export.md | Audit log export |
+| SERV-032 | spec/server/SERV-032-network-topology-map.md | Network topology |
+| SERV-033 | spec/server/SERV-033-maintenance-window.md | Maintenance window |
+| SERV-034 | spec/server/SERV-034-data-retention-policies.md | Data retention |
+| SERV-035 | spec/server/SERV-035-multi-tenant-support.md | Multi-tenant support |

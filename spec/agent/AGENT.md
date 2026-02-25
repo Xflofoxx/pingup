@@ -1,9 +1,9 @@
 # Agent Specification
 
-> **Version**: 1.1.0  
+> **Version**: 1.2.0  
 > **Component**: Agent  
-> **Related Requirements**: AGENT-001 through AGENT-015  
-> **Status**: Implementation Ready
+> **Related Requirements**: AGENT-001 through AGENT-050  
+> **Status**: Proposed
 
 ## 1. Overview
 
@@ -384,3 +384,38 @@ bun run lint
 | AGENT-013 | spec/agent/AGENT-013-icmp-ping-library.md | ICMP library requirement |
 | AGENT-014 | spec/agent/AGENT-014-network-scanner-library.md | Network scanner requirement |
 | AGENT-015 | spec/agent/AGENT-015-network-discovery-integration.md | Discovery integration requirement |
+| AGENT-016 | spec/agent/AGENT-016-windows-service-support.md | Windows service support |
+| AGENT-017 | spec/agent/AGENT-017-container-metrics.md | Container metrics |
+| AGENT-018 | spec/agent/AGENT-018-gpu-metrics.md | GPU metrics |
+| AGENT-019 | spec/agent/AGENT-019-custom-scripts.md | Custom scripts |
+| AGENT-020 | spec/agent/AGENT-020-vpn-detection.md | VPN detection |
+| AGENT-021 | spec/agent/AGENT-021-wifi-metrics.md | WiFi metrics |
+| AGENT-022 | spec/agent/AGENT-022-battery-status.md | Battery status |
+| AGENT-023 | spec/agent/AGENT-023-temperature-monitoring.md | Temperature monitoring |
+| AGENT-024 | spec/agent/AGENT-024-log-rotation.md | Log rotation |
+| AGENT-025 | spec/agent/AGENT-025-offline-mode.md | Offline mode |
+| AGENT-026 | spec/agent/AGENT-026-netbios-discovery.md | NetBIOS discovery |
+| AGENT-027 | spec/agent/AGENT-027-mdns-discovery.md | mDNS/Avahi discovery |
+| AGENT-028 | spec/agent/AGENT-028-upnp-ssdp-discovery.md | UPnP/SSDP discovery |
+| AGENT-029 | spec/agent/AGENT-029-arp-scanning.md | ARP scanning |
+| AGENT-030 | spec/agent/AGENT-030-dhcp-lease-discovery.md | DHCP lease discovery |
+| AGENT-031 | spec/agent/AGENT-031-snmp-polling.md | SNMP polling |
+| AGENT-032 | spec/agent/AGENT-032-device-fingerprinting.md | Device fingerprinting |
+| AGENT-033 | spec/agent/AGENT-033-lldp-cdp-discovery.md | LLDP/CDP discovery |
+| AGENT-034 | spec/agent/AGENT-034-wake-on-lan.md | Wake-on-LAN |
+| AGENT-035 | spec/agent/AGENT-035-port-service-detection.md | Port service detection |
+| AGENT-036 | spec/agent/AGENT-036-ble-discovery.md | BLE discovery |
+| AGENT-037 | spec/agent/AGENT-037-zigbee-zwave-discovery.md | Zigbee/Z-Wave discovery |
+| AGENT-038 | spec/agent/AGENT-038-network-traffic-analysis.md | Network traffic analysis |
+| AGENT-039 | spec/agent/AGENT-039-vulnerability-scanning.md | Vulnerability scanning |
+| AGENT-040 | spec/agent/AGENT-040-cve-tracking.md | CVE tracking |
+| AGENT-041 | spec/agent/AGENT-041-ssl-tls-analysis.md | SSL/TLS analysis |
+| AGENT-042 | spec/agent/AGENT-042-intrusion-detection.md | Intrusion detection |
+| AGENT-043 | spec/agent/AGENT-043-network-segmentation.md | Network segmentation |
+| AGENT-044 | spec/agent/AGENT-044-rogue-dhcp-detection.md | Rogue DHCP detection |
+| AGENT-045 | spec/agent/AGENT-045-password-audit.md | Password audit |
+| AGENT-046 | spec/agent/AGENT-046-malware-detection.md | Malware detection |
+| AGENT-047 | spec/agent/AGENT-047-dns-security-analysis.md | DNS security analysis |
+| AGENT-048 | spec/agent/AGENT-048-firewall-audit.md | Firewall audit |
+| AGENT-049 | spec/agent/AGENT-049-security-compliance.md | Security compliance |
+| AGENT-050 | spec/agent/AGENT-050-threat-intelligence.md | Threat intelligence |
