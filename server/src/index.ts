@@ -9,6 +9,7 @@ import { configRouter } from "./routes/config.ts";
 import { discoveryRouter } from "./routes/discovery.ts";
 import { authRouter, usersRouter, auditRouter } from "./routes/auth.ts";
 import { dashboardRouter } from "./routes/dashboard.ts";
+import { swaggerRouter } from "./routes/swagger.ts";
 import { logger } from "./utils/logger.ts";
 
 const app = new Hono();
@@ -29,6 +30,7 @@ app.route("/api/v1/discovery", discoveryRouter);
 app.route("/api/v1/auth", authRouter);
 app.route("/api/v1/users", usersRouter);
 app.route("/api/v1/audit", auditRouter);
+app.route("/api_docs", swaggerRouter);
 app.route("/", dashboardRouter);
 
 app.notFound((c) => {
