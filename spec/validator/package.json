@@ -1,9 +1,0 @@
-{
-  "name": "spec-validator",
-  "version": "1.0.0",
-  "type": "commonjs",
-  "description": "Validator for SPEC-compliant artifacts",
-  "scripts": {
-    "validate": "node validator.js"
-  }
-}
