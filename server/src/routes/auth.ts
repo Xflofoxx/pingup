@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { registerUser, loginUser, verifyToken, logoutUser, getUserByUsername, SignJWT } from "../services/auth.ts";
-import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword } from "../services/users.ts";
+import { registerUser, loginUser, verifyToken, logoutUser, SignJWT } from "../services/auth.ts";
+import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword, getUserByUsername } from "../services/users.ts";
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "pingup-secret-key-change-in-production");
 
