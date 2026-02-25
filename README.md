@@ -221,6 +221,17 @@ pingup/
 
 ## Development
 
+### Workflow
+
+Follow the [Workflow Specification](spec/WORKFLOW.md) for all development tasks:
+
+1. Create a spec branch: `spec/XXX-description`
+2. Implement feature: `feat/XXX-description`  
+3. Write tests: `test/XXX-description`
+4. Run tests and merge to master
+
+### Commands
+
 ```bash
 # Run agent tests
 cd agent && bun test
@@ -234,6 +245,16 @@ cd server && bun run lint
 ```
 
 ## Requirements
+
+### Project Specs
+
+| File | Description |
+|------|-------------|
+| [spec/CONTEXT.md](spec/CONTEXT.md) | Development constitution |
+| [spec/WORKFLOW.md](spec/WORKFLOW.md) | Development workflow |
+| [spec/CODING_STYLE.md](spec/CODING_STYLE.md) | Coding standards |
+| [spec/SERVER.md](spec/SERVER.md) | Server architecture |
+| [spec/AGENT.md](spec/agent/AGENT.md) | Agent architecture |
 
 ### Agent Requirements
 
