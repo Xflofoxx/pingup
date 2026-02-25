@@ -10,6 +10,8 @@ import { authRouter, usersRouter, auditRouter } from "./routes/auth.ts";
 import { dashboardRouter } from "./routes/dashboard.ts";
 import { swaggerRouter } from "./routes/swagger.ts";
 import { logger } from "./utils/logger.ts";
+import { listAgents } from "./services/agent.ts";
+import { getDeviceCount } from "./db/duckdb.ts";
 
 const app = new Hono();
 
@@ -18,6 +20,33 @@ app.use("*", honoLogger());
 
 app.get("/health", (c) => {
   return c.json({ status: "healthy", timestamp: new Date().toISOString() });
+});
+
+app.get("/health/detailed", (c) => {
+  const agents = listAgents();
+  const onlineAgents = agents.filter(a => a.status === "online").length;
+  let deviceCount = 0;
+  
+  try {
+    deviceCount = getDeviceCount();
+  } catch {
+    deviceCount = agents.length;
+  }
+  
+  return c.json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    performance: {
+      totalDevices: deviceCount,
+      registeredAgents: agents.length,
+      onlineAgents: onlineAgents,
+      capacity: deviceCount < 10000 ? "ok" : "near_limit",
+    },
+    targets: {
+      maxDevices: 10000,
+      targetLatency: "200ms",
+    }
+  });
 });
 
 app.route("/api/v1/agents", agentsRouter);

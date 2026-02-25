@@ -1,8 +1,8 @@
 # Server Specification
 
-> **Version**: 1.2.0  
+> **Version**: 1.3.0  
 > **Component**: Server  
-> **Related Requirements**: SERV-001 through SERV-035  
+> **Related Requirements**: SERV-001 through SERV-042  
 > **Status**: Proposed
 
 ## 1. Overview
@@ -316,6 +316,13 @@ bun run lint
 - [ ] SERV-033: Maintenance window → services/maintenance.ts
 - [ ] SERV-034: Data retention policies → services/retention.ts
 - [ ] SERV-035: Multi-tenant support → services/tenants.ts
+- [ ] SERV-036: IEC 62443 compliance → services/compliance.ts
+- [ ] SERV-037: Performance gate 10K devices → services/performance.ts
+- [ ] SERV-038: ISO 27001 ISMS → services/isms.ts
+- [ ] SERV-039: OT asset management → services/ot-assets.ts
+- [ ] SERV-040: OT security monitoring → services/ot-security.ts
+- [ ] SERV-041: Network access control → services/nac.ts
+- [ ] SERV-042: OT vulnerability management → services/ot-vulns.ts
 
 ## 10. Cross-References
 
@@ -358,3 +365,10 @@ bun run lint
 | SERV-033 | spec/server/SERV-033-maintenance-window.md | Maintenance window |
 | SERV-034 | spec/server/SERV-034-data-retention-policies.md | Data retention |
 | SERV-035 | spec/server/SERV-035-multi-tenant-support.md | Multi-tenant support |
+| SERV-036 | spec/server/SERV-036-iec62443-compliance.md | IEC 62443 compliance |
+| SERV-037 | spec/server/SERV-037-performance-gate-10k.md | Performance gate 10K |
+| SERV-038 | spec/server/SERV-038-iso27001-isms.md | ISO 27001 ISMS |
+| SERV-039 | spec/server/SERV-039-ot-asset-management.md | OT asset management |
+| SERV-040 | spec/server/SERV-040-ot-security-monitoring.md | OT security monitoring |
+| SERV-041 | spec/server/SERV-041-network-access-control.md | Network access control |
+| SERV-042 | spec/server/SERV-042-ot-vulnerability-management.md | OT vulnerability management |

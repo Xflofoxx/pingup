@@ -171,6 +171,50 @@ None planned for this release.
 
 ---
 
+## Version 1.5.0 - IT/OT Convergence
+
+**Target Date**: TBD  
+**Focus**: ISO compliance and OT security
+
+### Server Requirements
+
+| ID | Requirement |
+|----|-------------|
+| SERV-036 | IEC 62443 compliance |
+| SERV-037 | Performance gate (10K devices) |
+| SERV-038 | ISO 27001 ISMS integration |
+| SERV-039 | OT asset management |
+| SERV-040 | OT security monitoring |
+| SERV-041 | Network access control (NAC) |
+| SERV-042 | OT vulnerability management |
+
+### Agent Requirements
+
+| ID | Requirement |
+|----|-------------|
+| AGENT-026 | NetBIOS discovery |
+| AGENT-027 | mDNS discovery |
+| AGENT-028 | UPnP/SSDP discovery |
+| AGENT-029 | ARP scanning |
+| AGENT-030 | DHCP lease discovery |
+| AGENT-031 | SNMP polling |
+| AGENT-032 | Device fingerprinting |
+| AGENT-033 | LLDP/CDP discovery |
+| AGENT-039 | Vulnerability scanning |
+| AGENT-040 | CVE tracking |
+| AGENT-041 | SSL/TLS analysis |
+| AGENT-042 | Intrusion detection |
+| AGENT-043 | Network segmentation |
+| AGENT-044 | Rogue DHCP detection |
+| AGENT-045 | Password audit |
+| AGENT-046 | Malware detection |
+| AGENT-047 | DNS security analysis |
+| AGENT-048 | Firewall audit |
+| AGENT-049 | Security compliance |
+| AGENT-050 | Threat intelligence |
+
+---
+
 ## Release Schedule
 
 | Version | Focus | ETA |
@@ -180,7 +224,8 @@ None planned for this release.
 | 1.2.0 | Reporting & Export | Q2 2026 |
 | 1.3.0 | Advanced Monitoring | Q3 2026 |
 | 1.4.0 | Enterprise Features | Q3 2026 |
-| 2.0.0 | Cloud & Scale | Q4 2026 |
+| 1.5.0 | IT/OT Convergence | Q4 2026 |
+| 2.0.0 | Cloud & Scale | Q1 2027 |
 
 ---
 
