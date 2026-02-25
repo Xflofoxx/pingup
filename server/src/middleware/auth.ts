@@ -1,6 +1,5 @@
 import { verifyToken, logoutUser } from "../services/auth.ts";
 import { hasRole } from "../services/users.ts";
-import { getCookie } from "hono/cookie";
 import type { MiddlewareHandler } from "hono";
 
 export interface AuthContext {
@@ -13,7 +12,7 @@ export interface AuthContext {
 }
 
 export const requireAuth: MiddlewareHandler = async (c, next) => {
-  const token = getCookie(c, "auth_token");
+  const token = c.req.cookie("auth_token");
   
   if (!token) {
     return c.json({ error: "Authentication required" }, 401);
@@ -54,7 +53,7 @@ export const requireRole = (allowedRoles: string[]): MiddlewareHandler => {
 };
 
 export const optionalAuth: MiddlewareHandler = async (c, next) => {
-  const token = getCookie(c, "auth_token");
+  const token = c.req.cookie("auth_token");
   
   if (token) {
     const payload = await verifyToken(token);

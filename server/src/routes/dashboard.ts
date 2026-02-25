@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { verifyToken } from "../services/auth.ts";
 import { hasRole, getUserById } from "../services/users.ts";
-import { getCookie } from "hono/cookie";
 import { getAgent, listAgents } from "../services/agent.ts";
 import { getAgentMetrics } from "../services/metrics.ts";
 import { getDb } from "../db/sqlite.ts";
@@ -564,7 +563,7 @@ dashboardRouter.get("/register", (c) => {
 });
 
 dashboardRouter.get("/dashboard", async (c) => {
-  const token = getCookie(c, "auth_token");
+  const token = c.req.cookie("auth_token");
   
   if (!token) {
     return c.redirect("/login");
@@ -586,7 +585,7 @@ dashboardRouter.get("/dashboard", async (c) => {
 });
 
 dashboardRouter.get("/logout", async (c) => {
-  const token = getCookie(c, "auth_token");
+  const token = c.req.cookie("auth_token");
   
   if (token) {
     const payload = await verifyToken(token);

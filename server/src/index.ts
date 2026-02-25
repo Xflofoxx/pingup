@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { cookie } from "hono/cookie";
 import { logger as honoLogger } from "hono/logger";
 import { agentsRouter } from "./routes/agents.ts";
 import { metricsRouter } from "./routes/metrics.ts";
@@ -16,7 +15,6 @@ const app = new Hono();
 
 app.use("*", cors());
 app.use("*", honoLogger());
-app.use("*", cookie());
 
 app.get("/health", (c) => {
   return c.json({ status: "healthy", timestamp: new Date().toISOString() });
