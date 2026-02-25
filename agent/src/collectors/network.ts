@@ -9,10 +9,15 @@ export interface NetworkMetrics {
 
 let lastNetwork: { rx_bytes: number; tx_bytes: number; rx_packets: number; tx_packets: number } | null = null;
 
-export async function collectNetwork(): Promise<NetworkMetrics> {
+function getWindowsNetworkStats(): { rx_bytes: number; tx_bytes: number; rx_packets: number; tx_packets: number } {
+  const proc = Bun.spawn(["netstat", "-e"]);
+  return { rx_bytes: 0, tx_bytes: 0, rx_packets: 0, tx_packets: 0 };
+}
+
+function getLinuxNetworkStats(): { rx_bytes: number; tx_bytes: number; rx_packets: number; tx_packets: number } {
   try {
-    const ifconfig = Bun.spawn(["cat", "/proc/net/dev"]);
-    const output = await new Response(ifconfig.stdout).text();
+    const proc = Bun.spawn(["cat", "/proc/net/dev"]);
+    const output = new Response(proc.stdout).text();
     
     let totalRx = 0;
     let totalTx = 0;
@@ -34,44 +39,38 @@ export async function collectNetwork(): Promise<NetworkMetrics> {
       }
     }
     
-    const current = {
-      rx_bytes: totalRx,
-      tx_bytes: totalTx,
-      rx_packets: totalRxPackets,
-      tx_packets: totalTxPackets,
-    };
-    
-    if (lastNetwork) {
-      const rxDiff = current.rx_bytes - lastNetwork.rx_bytes;
-      const txDiff = current.tx_bytes - lastNetwork.tx_bytes;
-      const rxPacketsDiff = current.rx_packets - lastNetwork.rx_packets;
-      const txPacketsDiff = current.tx_packets - lastNetwork.tx_packets;
-      
-      lastNetwork = current;
-      
-      return {
-        bytes_sent_mb: Math.round(txDiff / (1024 * 1024) * 100) / 100,
-        bytes_recv_mb: Math.round(rxDiff / (1024 * 1024) * 100) / 100,
-        packets_sent: txPacketsDiff,
-        packets_recv: rxPacketsDiff,
-      };
-    }
+    return { rx_bytes: totalRx, tx_bytes: totalTx, rx_packets: totalRxPackets, tx_packets: totalTxPackets };
+  } catch {
+    return { rx_bytes: 0, tx_bytes: 0, rx_packets: 0, tx_packets: 0 };
+  }
+}
+
+export async function collectNetwork(): Promise<NetworkMetrics> {
+  const isWindows = process.platform === "win32";
+  const current = isWindows ? getWindowsNetworkStats() : getLinuxNetworkStats();
+
+  if (lastNetwork) {
+    const rxDiff = current.rx_bytes - lastNetwork.rx_bytes;
+    const txDiff = current.tx_bytes - lastNetwork.tx_bytes;
+    const rxPacketsDiff = current.rx_packets - lastNetwork.rx_packets;
+    const txPacketsDiff = current.tx_packets - lastNetwork.tx_packets;
     
     lastNetwork = current;
     
     return {
-      bytes_sent_mb: 0,
-      bytes_recv_mb: 0,
-      packets_sent: 0,
-      packets_recv: 0,
-    };
-  } catch (e) {
-    console.error("Failed to collect network metrics:", e);
-    return {
-      bytes_sent_mb: 0,
-      bytes_recv_mb: 0,
-      packets_sent: 0,
-      packets_recv: 0,
+      bytes_sent_mb: Math.round(txDiff / (1024 * 1024) * 100) / 100,
+      bytes_recv_mb: Math.round(rxDiff / (1024 * 1024) * 100) / 100,
+      packets_sent: Math.max(0, txPacketsDiff),
+      packets_recv: Math.max(0, rxPacketsDiff),
     };
   }
+  
+  lastNetwork = current;
+  
+  return {
+    bytes_sent_mb: 0,
+    bytes_recv_mb: 0,
+    packets_sent: 0,
+    packets_recv: 0,
+  };
 }

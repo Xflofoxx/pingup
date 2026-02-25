@@ -3,8 +3,8 @@ import { processMetrics, getAgentMetrics, MetricsPayload } from "../services/met
 
 export const metricsRouter = new Hono();
 
-metricsRouter.post("/", (c) => {
-  const payload: MetricsPayload = c.req.json();
+metricsRouter.post("/", async (c) => {
+  const payload: MetricsPayload = await c.req.json();
   
   if (!payload.agentId || !payload.metrics) {
     return c.json({ error: "Invalid payload" }, 400);

@@ -6,7 +6,7 @@ import { collectNetwork } from "./collectors/network.ts";
 import { HTTPSender, type Command } from "./transport/index.ts";
 import { Hono } from "hono";
 
-function sign(data: string, secret: string): string {
+async function sign(data: string, secret: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),
@@ -24,18 +24,18 @@ async function executeCommand(command: Command): Promise<{ success: boolean; mes
   console.log(`Executing command: ${action}`, params);
   
   switch (action) {
-    case "ping":
+    case "ping": {
       return { success: true, message: "pong" };
-      
-    case "restart_service":
+    }
+    case "restart_service": {
       const service = params?.service || "unknown";
       console.log(`Restarting service: ${service}`);
       return { success: true, message: `Service ${service} restart triggered` };
-      
-    case "update_config":
+    }
+    case "update_config": {
       return { success: true, message: "Config update triggered" };
-      
-    case "execute":
+    }
+    case "execute": {
       const cmd = params?.command;
       if (cmd) {
         const proc = Bun.spawn(cmd.split(" "));
@@ -43,7 +43,7 @@ async function executeCommand(command: Command): Promise<{ success: boolean; mes
         return { success: true, message: output || "Command executed" };
       }
       return { success: false, message: "No command specified" };
-      
+    }
     default:
       return { success: false, message: `Unknown action: ${action}` };
   }
@@ -82,8 +82,10 @@ app.get("/status", (c) => {
   });
 });
 
-app.get("/metrics", (c) => {
-  return c.json(collectAllMetrics(getConfig()));
+app.get("/metrics", async (c) => {
+  const config = getConfig();
+  const metrics = await collectAllMetrics(config);
+  return c.json(metrics);
 });
 
 let latestMetrics: any = null;

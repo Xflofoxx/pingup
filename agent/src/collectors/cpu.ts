@@ -34,25 +34,29 @@ export function collectCPU(): CPUMetrics {
 }
 
 export async function measureLatency(host: string, timeout: number = 2): Promise<number> {
-  const start = Date.now();
-  
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout * 1000);
+    const start = Date.now();
+    const proc = Bun.spawn([
+      Bun.os() === "windows" ? "-n" : "-c", 
+      "1", 
+      "-w", 
+      String(timeout * 1000), 
+      host
+    ]);
     
-    await fetch(`http://${host}`, { signal: controller.signal });
-    clearTimeout(timeoutId);
+    const [code, stdout, stderr] = await Promise.all([
+      proc.exited,
+      proc.stdout.text(),
+      proc.stderr.text(),
+    ]);
     
-    return Date.now() - start;
-  } catch {
-    const ping = Bun.spawn(["ping", "-n", "1", "-w", String(timeout * 1000), host]);
-    const output = await new Response(ping.stdout).text();
-    
-    if (output.includes("Average")) {
-      const match = output.match(/Average = (\d+)ms/);
-      if (match) return parseInt(match[1]);
+    if (code === 0) {
+      const latency = Date.now() - start;
+      return latency;
     }
     
+    return -1;
+  } catch {
     return -1;
   }
 }

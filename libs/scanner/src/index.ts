@@ -52,6 +52,10 @@ function parseCIDR(cidr: string): string[] {
   const [ip, mask] = cidr.split("/");
   const numMask = parseInt(mask, 10);
   
+  if (numMask < 0 || numMask > 32) {
+    return [ip];
+  }
+  
   const ipParts = ip.split(".").map(Number);
   const ipNum = (ipParts[0] << 24) | (ipParts[1] << 16) | (ipParts[2] << 8) | ipParts[3];
   
@@ -60,7 +64,9 @@ function parseCIDR(cidr: string): string[] {
   const networkAddr = ipNum & (~((1 << hostBits) - 1) >>> 0);
   
   const hosts: string[] = [];
-  for (let i = 1; i < numHosts - 1 && i < 256; i++) {
+  const maxHosts = Math.min(numHosts - 2, 254);
+  
+  for (let i = 1; i <= maxHosts; i++) {
     const hostIp = (networkAddr + i) >>> 0;
     hosts.push(`${(hostIp >> 24) & 255}.${(hostIp >> 16) & 255}.${(hostIp >> 8) & 255}.${hostIp & 255}`);
   }
@@ -73,9 +79,13 @@ function parseRange(range: string): string[] {
   const startParts = start.split(".").map(Number);
   const endPart = parseInt(end, 10);
   
+  if (startParts.length !== 4 || isNaN(endPart)) {
+    return [];
+  }
+  
   const hosts: string[] = [];
-  for (let i = endPart; startParts[3] <= i; startParts[3]++) {
-    hosts.push(`${startParts[0]}.${startParts[1]}.${startParts[2]}.${startParts[3]}`);
+  for (let i = startParts[3]; i <= endPart && i <= 255; i++) {
+    hosts.push(`${startParts[0]}.${startParts[1]}.${startParts[2]}.${i}`);
   }
   
   return hosts;
