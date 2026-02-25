@@ -78,13 +78,20 @@ sqliteDb.exec(`
     id TEXT PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     role TEXT NOT NULL DEFAULT 'PUB',
-    totp_secret TEXT NOT NULL,
+    totp_secret TEXT,
+    password_hash TEXT,
     created_at TEXT DEFAULT (datetime('now')),
     last_login TEXT,
     status TEXT DEFAULT 'active',
     metadata TEXT
   )
 `);
+
+try {
+  sqliteDb.exec("ALTER TABLE users ADD COLUMN password_hash TEXT");
+} catch {
+  // Column already exists
+}
 
 sqliteDb.exec(`
   CREATE TABLE IF NOT EXISTS sessions (

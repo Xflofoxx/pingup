@@ -1,6 +1,8 @@
 import { Hono } from "hono";
-import { registerUser, loginUser, verifyToken, logoutUser, getUserByUsername } from "../services/auth.ts";
-import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog } from "../services/users.ts";
+import { registerUser, loginUser, verifyToken, logoutUser, getUserByUsername, SignJWT } from "../services/auth.ts";
+import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword } from "../services/users.ts";
+
+const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "pingup-secret-key-change-in-production");
 
 function getCookie(c: any, name: string): string | undefined {
   return c.req.cookie(name);
@@ -34,6 +36,97 @@ authRouter.post("/register", async (c) => {
     });
   } catch (error) {
     return c.json({ error: (error as Error).message }, 400);
+  }
+});
+
+authRouter.post("/register-password", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { username, password } = body;
+    
+    if (!username || username.length < 3) {
+      return c.json({ error: "Username must be at least 3 characters" }, 400);
+    }
+    
+    if (!password || password.length < 6) {
+      return c.json({ error: "Password must be at least 6 characters" }, 400);
+    }
+    
+    const existing = getUserByUsername(username);
+    if (existing) {
+      return c.json({ error: "Username already exists" }, 400);
+    }
+    
+    const passwordHash = hashPassword(password);
+    const user = createUser(username, "PUB", undefined, passwordHash);
+    
+    logAudit(user.id, "user_register_password", "user", `User registered with password: ${username}`);
+    
+    return c.json({
+      userId: user.id,
+      username: user.username,
+    });
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 400);
+  }
+});
+
+authRouter.post("/login-password", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { username, password } = body;
+    
+    if (!username || !password) {
+      return c.json({ error: "Username and password are required" }, 400);
+    }
+    
+    const user = getUserByUsername(username);
+    
+    if (!user) {
+      logAudit(null, "login_failed", "auth", `Failed login attempt for username: ${username}`);
+      return c.json({ error: "Invalid credentials" }, 401);
+    }
+    
+    if (!user.password_hash || !verifyPassword(password, user.password_hash)) {
+      logAudit(user.id, "login_failed", "auth", "Invalid password");
+      return c.json({ error: "Invalid credentials" }, 401);
+    }
+    
+    if (user.status === "disabled") {
+      logAudit(user.id, "login_disabled", "auth", "Disabled user attempted login");
+      return c.json({ error: "Account is disabled" }, 401);
+    }
+    
+    updateLastLogin(user.id);
+    
+    const ipAddress = c.req.header("X-Forwarded-For") || c.req.header("CF-Connecting-IP") || "unknown";
+    const userAgent = c.req.header("User-Agent") || "unknown";
+    const session = createSession(user.id, ipAddress, userAgent);
+    
+    const token = await new SignJWT({ 
+      sub: user.id, 
+      username: user.username, 
+      role: user.role,
+      sessionId: session.id 
+    })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("24h")
+      .sign(SECRET_KEY);
+    
+    logAudit(user.id, "login_success", "auth", "User logged in with password");
+    
+    setCookie(c, "auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 60 * 60 * 24,
+      path: "/",
+    });
+    
+    return c.json({ user: { id: user.id, username: user.username, role: user.role } });
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 500);
   }
 });
 

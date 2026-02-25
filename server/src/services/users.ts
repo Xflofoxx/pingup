@@ -4,7 +4,8 @@ export interface User {
   id: string;
   username: string;
   role: "PUB" | "IT" | "SUP" | "ADM";
-  totp_secret: string;
+  totp_secret: string | null;
+  password_hash: string | null;
   created_at: string;
   last_login: string | null;
   status: "active" | "disabled";
@@ -40,20 +41,54 @@ export function hasRole(userRole: string, requiredRole: string): boolean {
   return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
 }
 
-export function createUser(username: string, role: string, totpSecret: string): User {
+function simpleHash(password: string, salt: string): string {
+  let hash = 0;
+  const combined = password + salt;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  let result = hash.toString(16);
+  for (let i = 0; i < 10; i++) {
+    result += result.charAt(Math.floor(Math.random() * result.length));
+  }
+  return result;
+}
+
+export function hashPassword(password: string): string {
+  const salt = Math.random().toString(36).substring(2, 15);
+  return salt + ":" + simpleHash(password, salt);
+}
+
+export function verifyPassword(password: string, hash: string): boolean {
+  if (!hash || !hash.includes(":")) return false;
+  const [salt] = hash.split(":");
+  const computed = simpleHash(password, salt);
+  return hash === salt + ":" + computed;
+}
+
+export function createUser(username: string, role: string, totpSecret?: string, passwordHash?: string): User {
   const db = getDb();
   const id = `usr_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
   
   const stmt = db.prepare(`
-    INSERT INTO users (id, username, role, totp_secret, status)
-    VALUES (?, ?, ?, ?, 'active')
+    INSERT INTO users (id, username, role, totp_secret, password_hash, status)
+    VALUES (?, ?, ?, ?, ?, 'active')
   `);
   
-  stmt.run(id, username, role, totpSecret);
+  stmt.run(id, username, role, totpSecret || null, passwordHash || null);
   
   logAudit(null, "user_create", "user", `Created user: ${username} with role: ${role}`);
   
   return getUserById(id)!;
+}
+
+export function setUserPassword(userId: string, passwordHash: string): boolean {
+  const db = getDb();
+  const stmt = db.prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+  const result = stmt.run(passwordHash, userId);
+  return result.changes > 0;
 }
 
 export function getUserById(id: string): User | undefined {
