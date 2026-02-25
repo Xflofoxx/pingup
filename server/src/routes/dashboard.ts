@@ -915,12 +915,12 @@ export const dashboardRouter = new Hono();
 dashboardRouter.get("/", (c) => {
   const stats = getPublicStats();
   
-  let html = HTML_HEADER + PUBLIC_DASHBOARD
-    .replace("{{HEALTH_SCORE}}", stats.healthScore.toString())
-    .replace("{{ONLINE_AGENTS}}", stats.onlineAgents.toString())
-    .replace("{{TOTAL_AGENTS}}", stats.totalAgents.toString())
-    .replace("{{AVG_CPU}}", stats.avgCpu.toString())
-    .replace("{{AVG_RAM}}", stats.avgRam.toString());
+  let html = (HTML_HEADER + PUBLIC_DASHBOARD)
+    .replaceAll("{{HEALTH_SCORE}}", stats.healthScore.toString())
+    .replaceAll("{{ONLINE_AGENTS}}", stats.onlineAgents.toString())
+    .replaceAll("{{TOTAL_AGENTS}}", stats.totalAgents.toString())
+    .replaceAll("{{AVG_CPU}}", stats.avgCpu.toString())
+    .replaceAll("{{AVG_RAM}}", stats.avgRam.toString());
   
   return c.html(html);
 });
