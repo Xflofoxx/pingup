@@ -392,6 +392,8 @@ const PUBLIC_DASHBOARD = `
     </div>
   </footer>
 </div>
+</body>
+</html>
 `;
 
 function getLoginPage() {
@@ -913,7 +915,7 @@ export const dashboardRouter = new Hono();
 dashboardRouter.get("/", (c) => {
   const stats = getPublicStats();
   
-  let html = PUBLIC_DASHBOARD
+  let html = HTML_HEADER + PUBLIC_DASHBOARD
     .replace("{{HEALTH_SCORE}}", stats.healthScore.toString())
     .replace("{{ONLINE_AGENTS}}", stats.onlineAgents.toString())
     .replace("{{TOTAL_AGENTS}}", stats.totalAgents.toString())
