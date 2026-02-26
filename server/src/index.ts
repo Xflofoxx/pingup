@@ -1,3 +1,7 @@
+// Pingup Server - Main Entry Point
+// Version: 1.4.1
+// Provides REST API for agent management, metrics, alerts, and dashboard
+
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger as honoLogger } from "hono/logger";

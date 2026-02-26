@@ -1,9 +1,9 @@
 # Server Specification
 
-> **Version**: 1.3.0  
+> **Version**: 1.4.0  
 > **Component**: Server  
 > **Related Requirements**: SERV-001 through SERV-042  
-> **Status**: Proposed
+> **Status**: Implemented
 
 ## 1. Overview
 

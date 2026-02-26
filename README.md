@@ -1,7 +1,7 @@
 # Pingup
 
 > Lightweight network monitoring agent and server with ICMP ping and network scanning capabilities.
-> **Version**: 1.4.1
+> **Version**: 1.6.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bun](https://img.shields.io/badge/Bun-1.1+-red.svg)](https://bun.sh)

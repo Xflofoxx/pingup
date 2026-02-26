@@ -1,3 +1,7 @@
+// Pingup Agent - Main Entry Point
+// Version: 1.4.1
+// Collects system metrics and reports to server
+
 import { loadConfig, getConfig } from "./config.ts";
 import { collectCPU, measureLatency } from "./collectors/cpu.ts";
 import { collectRAM } from "./collectors/ram.ts";
