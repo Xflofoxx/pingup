@@ -55,6 +55,7 @@ export function closeDb(): void {
 export interface Agent {
   id: string;
   name: string | null;
+  owner_id: string | null;
   status: string;
   last_seen: string | null;
   metadata: string | null;

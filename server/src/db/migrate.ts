@@ -17,12 +17,17 @@ sqliteDb.exec(`
   CREATE TABLE IF NOT EXISTS agents (
     id TEXT PRIMARY KEY,
     name TEXT,
+    owner_id TEXT,
     status TEXT DEFAULT 'offline',
     last_seen TEXT,
     metadata TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   )
 `);
+
+try {
+  sqliteDb.exec("ALTER TABLE agents ADD COLUMN owner_id TEXT");
+} catch {}
 
 sqliteDb.exec(`
   CREATE TABLE IF NOT EXISTS commands (
