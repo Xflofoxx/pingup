@@ -1,22 +1,25 @@
 # Pingup
 
 > Lightweight network monitoring agent and server with ICMP ping and network scanning capabilities.
-> **Version**: 1.6.0
+> **Version**: 1.7.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bun](https://img.shields.io/badge/Bun-1.1+-red.svg)](https://bun.sh)
-[![Discord](https://img.shields.io/discord/123456789.svg)](https://discord.gg/pingup)
+[![Test Coverage](https://img.shields.io/badge/Coverage-94%25-brightgreen.svg)](#)
 
 Pingup is a lightweight monitoring solution that collects system metrics from remote agents, provides network discovery through ICMP ping and port scanning, and stores everything in a local SQLite database.
 
 ## Features
 
-- **System Metrics**: CPU, RAM, disk, network, and temperature monitoring
+- **System Metrics**: CPU, RAM, disk, network, temperature, battery monitoring
+- **Advanced Metrics**: GPU metrics, container metrics, WiFi/VPN detection
 - **ICMP Ping**: Measure latency to hosts with statistics
 - **Network Scanner**: Discover devices on local networks with port scanning
+- **Network Discovery**: ARP, NetBIOS, mDNS, UPnP/SSDP, LLDP/CDP, DHCP leases
 - **Remote Commands**: Execute commands on agents from the server
 - **Dashboard**: Modern web-based UI with role-based access control
-- **Authentication**: TOTP and password-based login
+- **Agent Dashboard**: Local dashboard with owner-based access control
+- **Authentication**: TOTP and password-based login, LDAP/AD integration
 - **Alerting**: Custom thresholds with email, webhook, and in-app notifications
 - **Agent Groups**: Organize agents into logical groups
 - **Reporting**: Scheduled reports with PDF/CSV export
@@ -24,6 +27,8 @@ Pingup is a lightweight monitoring solution that collects system metrics from re
 - **Grafana**: Native integration with Grafana
 - **Process & Service Monitoring**: Monitor running processes and system services
 - **SSL Certificates**: Monitor SSL certificate expiration
+- **Enterprise Features**: API tokens, maintenance windows, data retention, multi-tenancy
+- **IT/OT Security**: IEC 62443 compliance, ISO 27001 ISMS, OT asset management
 
 ## Quick Start
 
@@ -49,23 +54,23 @@ cd ../server && bun install
 
 ```bash
 cd server
-bun run src/db/migrate.ts  # Run migrations
-bun run start              # Start server on port 3000
+bun run migrate  # Run migrations
+bun run start    # Start server on port 7000
 ```
 
 **Start the agent:**
 
 ```bash
 cd agent
-bun run start              # Start agent on port 8080
+bun run start    # Start agent on port 8080
 ```
 
 ### Access Dashboard
 
-- Dashboard: http://localhost:3000
-- Login: http://localhost:3000/login
-- Register: http://localhost:3000/register
-- API Docs: http://localhost:3000/api_docs
+- Dashboard: http://localhost:7000
+- Login: http://localhost:7000/login
+- Register: http://localhost:7000/register
+- API Docs: http://localhost:7000/api_docs
 
 ## Configuration
 
@@ -108,7 +113,7 @@ discovery:
 ```
 ┌─────────────┐         ┌─────────────┐
 │   Agent     │────────▶│   Server    │
-│  (port 8080)│◀────────│  (port 3000)│
+│  (port 8080)│◀────────│  (port 7000)│
 └─────────────┘         └─────────────┘
       │                        │
       │                        ▼
@@ -119,40 +124,45 @@ discovery:
       ▼
 ┌─────────────┐
 │ Network     │
-│ Scanner    │
+│ Discovery  │
 └─────────────┘
 ```
 
 ## API Endpoints
 
-### Server (Port 3000)
+### Server (Port 7000)
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check |
 | `/api_docs` | GET | Swagger API documentation |
 | `/metrics` | GET | Prometheus metrics endpoint |
-| `/api/v1/agents` | GET | List all agents |
+| `/api/v1/agents` | GET/POST | Agent management |
 | `/api/v1/metrics` | POST | Receive metrics |
 | `/api/v1/metrics/:agentId` | GET | Get metrics history |
 | `/api/v1/commands` | GET/POST | Manage commands |
 | `/api/v1/discovery` | POST | Receive discovery data |
 | `/api/v1/config/:agentId` | GET/POST | Agent configuration |
 | `/api/v1/groups` | GET/POST | Agent groups management |
-| `/api/v1/alerts/thresholds` | GET/POST | Alert thresholds |
-| `/api/v1/alerts/notifications` | GET/POST | Alert notifications |
-| `/api/v1/alerts/history` | GET | Alert history |
+| `/api/v1/alerts/*` | GET/POST | Alert management |
 | `/api/v1/reports` | GET/POST | Scheduled reports |
 | `/api/v1/certificates` | GET/POST | SSL certificates |
 | `/api/v1/processes` | GET/POST | Process monitoring |
 | `/api/v1/services` | GET/POST | Service monitoring |
 | `/api/v1/bandwidth` | GET/POST | Bandwidth monitoring |
 | `/api/v1/metrics/custom` | GET/POST | Custom metrics |
-| `/api/v1/auth/register` | POST | Register (TOTP) |
-| `/api/v1/auth/register-password` | POST | Register (password) |
-| `/api/v1/auth/login-password` | POST | Login with password |
-| `/api/v1/auth/forgot-password` | POST | Password recovery |
-| `/api/v1/users` | GET | List users (Admin) |
+| `/api/v1/ldap/*` | GET/POST | LDAP/AD integration |
+| `/api/v1/api-tokens/*` | GET/POST | API access tokens |
+| `/api/v1/topology/*` | GET | Network topology |
+| `/api/v1/maintenance/*` | GET/POST | Maintenance windows |
+| `/api/v1/retention/*` | GET/POST | Data retention policies |
+| `/api/v1/tenants/*` | GET/POST | Multi-tenant management |
+| `/api/v1/compliance/*` | GET/POST | IEC 62443 compliance |
+| `/api/v1/ot-assets/*` | GET/POST | OT asset management |
+| `/api/v1/performance/*` | GET | Performance metrics |
+| `/api/v1/isms/*` | GET/POST | ISO 27001 ISMS |
+| `/api/v1/auth/*` | GET/POST | Authentication |
+| `/api/v1/users` | GET | User management (Admin) |
 
 ### Agent Local API (Port 8080)
 
@@ -161,6 +171,8 @@ discovery:
 | `/status` | GET | Agent status |
 | `/metrics` | GET | Current metrics |
 | `/health` | GET | Health check |
+| `/dashboard` | GET | Agent dashboard (HTML) |
+| `/logs` | GET | Agent logs |
 
 ## Dashboard
 
@@ -251,23 +263,52 @@ bun libs/scanner/src/cli.ts 192.168.1.0/24 -p 22,80,443 --json
 
 ## Release Notes
 
-### Version 1.4.0 - Enterprise Features
+### Version 1.7.0 - Additional Features & IT/OT
 **Release Date**: February 2026
 
-Enterprise-grade features for large-scale deployments.
+Extended monitoring and IT/OT security features.
 
 **Server Features:**
-- Custom Metrics (SERV-026): Define and collect custom metrics beyond built-in ones
-- API Rate Limiting (SERV-027): Prevent API abuse with configurable rate limits
-- Backup & Restore (SERV-029): Full backup and restore capabilities
+- LDAP/AD Integration (SERV-028): Enterprise authentication with directory services
+- API Access Tokens (SERV-030): Programmatic API access with scoped tokens
+- Network Topology Map (SERV-032): Visualize network topology
+- Maintenance Windows (SERV-033): Schedule maintenance periods
+- Data Retention Policies (SERV-034): Configure data retention rules
+- Multi-tenant Support (SERV-035): Multiple organizations on one instance
+- IEC 62443 Compliance (SERV-036): Industrial security zones
+- Performance Gate (SERV-037): 10K device capacity monitoring
+- ISO 27001 ISMS (SERV-038): Information security controls
+- OT Asset Management (SERV-039): Industrial asset inventory
+- OT Security Monitoring (SERV-040): Security monitoring for OT
+- Network Access Control (SERV-041): NAC integration
+- Vulnerability Management (SERV-042): OT vulnerability tracking
 
-**Coming Soon:**
-- LDAP/AD Integration (SERV-028)
-- API Access Tokens (SERV-030)
+**Agent Features:**
+- Windows Service Support (AGENT-016): Run as Windows service
+- Container Metrics (AGENT-017): Docker container monitoring
+- GPU Metrics (AGENT-018): NVIDIA/AMD GPU monitoring
+- Custom Scripts (AGENT-019): Execute custom metric scripts
+- VPN Detection (AGENT-020): Detect VPN connections
+- WiFi Metrics (AGENT-021): Wireless signal monitoring
+- Battery Status (AGENT-022): Laptop battery monitoring
+- Log Rotation (AGENT-024): Automated log management
+- Offline Mode (AGENT-025): Queue metrics when offline
+- NetBIOS Discovery (AGENT-026): Windows name discovery
+- mDNS Discovery (AGENT-027): Apple/Bonjour discovery
+- UPnP/SSDP Discovery (AGENT-028): Device discovery
+- ARP Scanning (AGENT-029): Layer 2 discovery
+- DHCP Lease Discovery (AGENT-030): DHCP client tracking
+- SNMP Polling (AGENT-031): SNMP device queries
+- Device Fingerprinting (AGENT-032): Identify device types
+- LLDP/CDP Discovery (AGENT-033): Network infrastructure discovery
+- Wake-on-LAN (AGENT-034): Remote wake capabilities
+- Agent Dashboard (AGENT-051): Local web dashboard
+
+**Infrastructure:**
+- Test Coverage: 94%+
+- Config via config.yaml
 
 ---
-
-### Version 1.3.0 - Advanced Monitoring
 **Release Date**: February 2026
 
 Advanced monitoring features for process, service, SSL certificate, and bandwidth tracking.
