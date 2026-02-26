@@ -1,4 +1,4 @@
-server_url: http://localhost:3000
+server_url: http://localhost:6000
 agent_id: AGENT-001
 poll_interval: 30
 network_timeout: 3

@@ -2,6 +2,8 @@
 // Version: 1.4.1
 // Provides REST API for agent management, metrics, alerts, and dashboard
 
+import { readFileSync } from "fs";
+import { parse } from "yaml";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger as honoLogger } from "hono/logger";
@@ -93,9 +95,29 @@ app.onError((err, c) => {
   return c.json({ error: "Internal server error" }, 500);
 });
 
-const PORT = parseInt(process.env.PORT || "3000");
+interface ServerConfig {
+  port: number;
+  host: string;
+  log_level: string;
+}
 
-logger.info(`Starting Pingup Server on port ${PORT}`);
+function loadServerConfig(): ServerConfig {
+  try {
+    const configFile = readFileSync("config.yaml", "utf-8");
+    return parse(configFile) as ServerConfig;
+  } catch {
+    return {
+      port: 3000,
+      host: "0.0.0.0",
+      log_level: "info",
+    };
+  }
+}
+
+const serverConfig = loadServerConfig();
+const PORT = serverConfig.port;
+
+logger.info(`Starting Pingup Server on ${serverConfig.host}:${PORT}`);
 
 export default {
   port: PORT,
