@@ -1,1 +1,7 @@
 node_modules/
+server/data/*.db
+server/data/*.duckdb
+server/data/*.db-shm
+server/data/*.db-wal
+server/data/*.duckdb-shm
+server/data/*.duckdb-wal
