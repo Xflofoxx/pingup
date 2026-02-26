@@ -25,6 +25,13 @@ export interface AgentConfig {
     interval: number;
     ports: number[];
   };
+  custom_scripts?: {
+    name: string;
+    command: string;
+    interval: number;
+    timeout: number;
+    enabled?: boolean;
+  }[];
 }
 
 let config: AgentConfig | null = null;
