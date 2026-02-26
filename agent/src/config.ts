@@ -7,6 +7,7 @@ export interface AgentConfig {
   poll_interval: number;
   network_timeout: number;
   auth_token: string;
+  temperature_unit: "celsius" | "fahrenheit";
   mqtt: {
     enabled: boolean;
     broker: string;
@@ -35,19 +36,20 @@ export function loadConfig(path: string = "config.yaml"): AgentConfig {
     const file = readFileSync(path, "utf-8");
     config = parse(file) as AgentConfig;
   } catch (e) {
-    config = {
+config = {
       server_url: "http://localhost:3000",
       agent_id: `AGENT-${Date.now().toString(36).toUpperCase()}`,
       poll_interval: 30,
       network_timeout: 3,
       auth_token: "",
+      temperature_unit: "celsius",
       mqtt: {
         enabled: false,
         broker: "localhost",
         port: 1883,
         topic: "pingup",
       },
-      modules: ["cpu", "ram", "disk", "network"],
+      modules: ["cpu", "ram", "disk", "network", "temperature"],
       ping: {
         host: "8.8.8.8",
         timeout: 2,

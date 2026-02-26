@@ -1,6 +1,7 @@
 # Pingup
 
 > Lightweight network monitoring agent and server with ICMP ping and network scanning capabilities.
+> **Version**: 1.1.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bun](https://img.shields.io/badge/Bun-1.1+-red.svg)](https://bun.sh)
@@ -9,13 +10,17 @@ Pingup is a lightweight monitoring solution that collects system metrics from re
 
 ## Features
 
-- **System Metrics Collection**: CPU, RAM, disk, and network usage
+- **System Metrics Collection**: CPU, RAM, disk, network, and temperature
 - **ICMP Ping**: Measure latency to hosts with statistics
 - **Network Scanner**: Discover devices on local networks with port scanning
 - **Remote Command Execution**: Execute commands on agents from the server
 - **Dashboard**: Web-based UI with role-based access
 - **TOTP Authentication**: Passwordless login using mobile authenticator apps
+- **Password Authentication**: Alternative login with username/password
 - **HMAC Authentication**: Secure payload signing between agent and server
+- **Alert Thresholds**: Define custom alerts for CPU, RAM, disk, latency, temperature
+- **Agent Groups**: Organize agents into logical groups
+- **Notification Channels**: Email, webhook, and in-app notifications
 
 ## Architecture
 
@@ -117,10 +122,13 @@ modules:
   - ram
   - disk
   - network
+  - temperature
 
 ping:
   host: 8.8.8.8
   timeout: 2
+
+temperature_unit: celsius  # or fahrenheit
 
 discovery:
   enabled: true
@@ -149,10 +157,14 @@ discovery:
 | `/api/v1/commands` | GET/POST | Manage commands |
 | `/api/v1/discovery` | POST | Receive discovery data |
 | `/api/v1/config/:agentId` | GET/POST | Agent configuration |
-| `/api/v1/auth/register` | POST | Register new user |
-| `/api/v1/auth/login` | POST | Login with TOTP |
-| `/api/v1/auth/logout` | POST | Logout |
+| `/api/v1/auth/register` | POST | Register new user (TOTP) |
+| `/api/v1/auth/register-password` | POST | Register new user (password) |
+| `/api/v1/auth/login-password` | POST | Login with password |
 | `/api/v1/users` | GET | List users (Admin) |
+| `/api/v1/groups` | GET/POST | Agent groups management |
+| `/api/v1/alerts/thresholds` | GET/POST | Alert thresholds |
+| `/api/v1/alerts/notifications` | GET/POST | Alert notifications |
+| `/api/v1/alerts/history` | GET | Alert history |
 
 ### Agent Local API (Port 8080)
 
@@ -253,10 +265,20 @@ cd server && bun run lint
 | [spec/CONTEXT.md](spec/CONTEXT.md) | Development constitution |
 | [spec/WORKFLOW.md](spec/WORKFLOW.md) | Development workflow |
 | [spec/CODING_STYLE.md](spec/CODING_STYLE.md) | Coding standards |
-| [spec/SERVER.md](spec/SERVER.md) | Server architecture |
-| [spec/AGENT.md](spec/agent/AGENT.md) | Agent architecture |
+| [spec/CI.md](spec/CI.md) | CI/CD pipeline |
+| [spec/TESTS.md](spec/TESTS.md) | Testing guidelines |
+| [spec/ROADMAP.md](spec/ROADMAP.md) | Project roadmap |
 
-### Agent Requirements
+### Version 1.1.0 - Alerting & Notifications
+
+| ID | File | Description |
+|----|------|-------------|
+| SERV-016 | [spec/server/SERV-016-alert-thresholds.md](spec/server/SERV-016-alert-thresholds.md) | Alert thresholds |
+| SERV-017 | [spec/server/SERV-017-alert-notifications.md](spec/server/SERV-017-alert-notifications.md) | Alert notifications |
+| SERV-018 | [spec/server/SERV-018-agent-groups.md](spec/server/SERV-018-agent-groups.md) | Agent groups |
+| AGENT-023 | [spec/agent/AGENT-023-temperature-monitoring.md](spec/agent/AGENT-023-temperature-monitoring.md) | Temperature monitoring |
+
+### Agent Requirements (v1.0.0)
 
 | ID | File | Description |
 |----|------|-------------|

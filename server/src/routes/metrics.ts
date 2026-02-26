@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { processMetrics, getAgentMetrics, MetricsPayload } from "../services/metrics.ts";
+import { checkAlerts } from "./alerts.ts";
 
 export const metricsRouter = new Hono();
 
@@ -11,6 +12,7 @@ metricsRouter.post("/", async (c) => {
   }
   
   processMetrics(payload);
+  checkAlerts(payload.agentId, payload.metrics);
   
   return c.json({ success: true });
 });

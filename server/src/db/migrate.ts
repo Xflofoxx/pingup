@@ -78,8 +78,8 @@ sqliteDb.exec(`
     id TEXT PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     role TEXT NOT NULL DEFAULT 'PUB',
-    totp_secret TEXT,
-    password_hash TEXT,
+    totp_secret TEXT DEFAULT NULL,
+    password_hash TEXT DEFAULT NULL,
     created_at TEXT DEFAULT (datetime('now')),
     last_login TEXT,
     status TEXT DEFAULT 'active',
@@ -88,10 +88,12 @@ sqliteDb.exec(`
 `);
 
 try {
-  sqliteDb.exec("ALTER TABLE users ADD COLUMN password_hash TEXT");
-} catch {
-  // Column already exists
-}
+  sqliteDb.exec("ALTER TABLE users ADD COLUMN totp_secret TEXT DEFAULT NULL");
+} catch {}
+
+try {
+  sqliteDb.exec("ALTER TABLE users ADD COLUMN password_hash TEXT DEFAULT NULL");
+} catch {}
 
 sqliteDb.exec(`
   CREATE TABLE IF NOT EXISTS sessions (
@@ -126,6 +128,84 @@ sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp)`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS agent_groups (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    parent_id TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (parent_id) REFERENCES agent_groups(id)
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS agent_group_members (
+    group_id TEXT NOT NULL,
+    agent_id TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (group_id, agent_id),
+    FOREIGN KEY (group_id) REFERENCES agent_groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_groups_parent ON agent_groups(parent_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_group_members_agent ON agent_group_members(agent_id)`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS alert_thresholds (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    metric TEXT NOT NULL,
+    operator TEXT NOT NULL,
+    value REAL NOT NULL,
+    level TEXT NOT NULL DEFAULT 'warning',
+    enabled INTEGER DEFAULT 1,
+    agent_id TEXT,
+    group_id TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES agent_groups(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_thresholds_agent ON alert_thresholds(agent_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_thresholds_group ON alert_thresholds(group_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_thresholds_metric ON alert_thresholds(metric)`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS alert_notifications (
+    id TEXT PRIMARY KEY,
+    channel TEXT NOT NULL,
+    config TEXT NOT NULL,
+    enabled INTEGER DEFAULT 1,
+    threshold_id TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (threshold_id) REFERENCES alert_thresholds(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS alert_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    threshold_id TEXT NOT NULL,
+    agent_id TEXT NOT NULL,
+    metric TEXT NOT NULL,
+    value REAL NOT NULL,
+    threshold_value REAL NOT NULL,
+    level TEXT NOT NULL,
+    triggered_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (threshold_id) REFERENCES alert_thresholds(id) ON DELETE CASCADE,
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_alert_history_agent ON alert_history(agent_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_alert_history_triggered ON alert_history(triggered_at)`);
 
 console.log("SQLite migration complete");
 console.log("All migrations complete!");

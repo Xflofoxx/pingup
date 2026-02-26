@@ -9,6 +9,8 @@ import { discoveryRouter } from "./routes/discovery.ts";
 import { authRouter, usersRouter, auditRouter } from "./routes/auth.ts";
 import { dashboardRouter } from "./routes/dashboard.ts";
 import { swaggerRouter } from "./routes/swagger.ts";
+import { groupsRouter } from "./routes/groups.ts";
+import { alertsRouter } from "./routes/alerts.ts";
 import { logger } from "./utils/logger.ts";
 import { listAgents } from "./services/agent.ts";
 import { getDeviceCount } from "./db/duckdb.ts";
@@ -57,6 +59,8 @@ app.route("/api/v1/discovery", discoveryRouter);
 app.route("/api/v1/auth", authRouter);
 app.route("/api/v1/users", usersRouter);
 app.route("/api/v1/audit", auditRouter);
+app.route("/api/v1/groups", groupsRouter);
+app.route("/api/v1/alerts", alertsRouter);
 app.route("/api_docs", swaggerRouter);
 app.route("/", dashboardRouter);
 

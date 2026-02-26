@@ -3,6 +3,7 @@ import { collectCPU, measureLatency } from "./collectors/cpu.ts";
 import { collectRAM } from "./collectors/ram.ts";
 import { collectDisk } from "./collectors/disk.ts";
 import { collectNetwork } from "./collectors/network.ts";
+import { collectTemperature } from "./collectors/temperature.ts";
 import { HTTPSender, type Command } from "./transport/index.ts";
 import { Hono } from "hono";
 
@@ -51,6 +52,7 @@ async function executeCommand(command: Command): Promise<{ success: boolean; mes
 
 async function collectAllMetrics(config: ReturnType<typeof getConfig>) {
   const metrics: Record<string, any> = {};
+  const tempUnit = config.temperature_unit || "celsius";
   
   if (config.modules.includes("cpu")) {
     metrics.cpu = collectCPU();
@@ -67,6 +69,10 @@ async function collectAllMetrics(config: ReturnType<typeof getConfig>) {
   
   if (config.modules.includes("network")) {
     metrics.network = await collectNetwork();
+  }
+
+  if (config.modules.includes("temperature")) {
+    metrics.temperature = collectTemperature(tempUnit);
   }
   
   return metrics;
@@ -106,7 +112,7 @@ async function main() {
       const metrics = await collectAllMetrics(config);
       latestMetrics = metrics;
       
-      const payload = {
+const payload = {
         agentId: config.agent_id,
         timestamp: new Date().toISOString(),
         metrics: {
@@ -114,6 +120,7 @@ async function main() {
           ram: metrics.ram?.ram_percent || 0,
           disk: metrics.disk?.disk_percent || 0,
           latency: metrics.cpu?.latency || -1,
+          temperature: metrics.temperature?.cpu || null,
         },
         status: "online",
       };
