@@ -88,7 +88,7 @@ export function verifyAgentAccess(agentId: string, userId: string): boolean {
 export function updateAgentOwner(agentId: string, ownerId: string): boolean {
   const db = getDb();
   const stmt = db.prepare(`
-    UPDATE agents SET owner_id = $1, updated_at = datetime('now') WHERE id = $2
+    UPDATE agents SET owner_id = ? WHERE id = ?
   `);
   const result = stmt.run(ownerId, agentId);
   return result.changes > 0;
