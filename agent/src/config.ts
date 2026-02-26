@@ -56,7 +56,7 @@ config = {
         port: 1883,
         topic: "pingup",
       },
-      modules: ["cpu", "ram", "disk", "network", "temperature"],
+      modules: ["cpu", "ram", "disk", "network", "temperature", "battery"],
       ping: {
         host: "8.8.8.8",
         timeout: 2,
