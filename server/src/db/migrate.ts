@@ -304,5 +304,68 @@ sqliteDb.exec(`
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_bandwidth_agent_time ON bandwidth_metrics(agent_id, timestamp)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_bandwidth_interface ON bandwidth_metrics(interface_name)`);
 
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS custom_metrics (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    type TEXT NOT NULL DEFAULT 'gauge',
+    unit TEXT,
+    description TEXT,
+    aggregation TEXT DEFAULT 'avg',
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS custom_metrics_data (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    metric_id TEXT NOT NULL,
+    agent_id TEXT NOT NULL,
+    value REAL NOT NULL,
+    timestamp TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (metric_id) REFERENCES custom_metrics(id) ON DELETE CASCADE,
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS api_rate_limits (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    limit_type TEXT NOT NULL,
+    max_requests INTEGER NOT NULL,
+    window_seconds INTEGER NOT NULL,
+    enabled INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS rate_limit_hits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    identifier TEXT NOT NULL,
+    endpoint TEXT NOT NULL,
+    hit_count INTEGER DEFAULT 1,
+    window_start TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (identifier) REFERENCES users(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS backups (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'full',
+    file_path TEXT,
+    file_size INTEGER,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_name ON custom_metrics(name)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_agent ON custom_metrics_data(agent_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_time ON custom_metrics_data(timestamp)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_rate_limits_identifier ON rate_limit_hits(identifier)`);
+
 console.log("SQLite migration complete");
 console.log("All migrations complete!");

@@ -1,4 +1,4 @@
-import { fs } from "bun";
+import type { DiskMetrics } from "bun";
 
 export interface DiskMetrics {
   disk_percent: number;

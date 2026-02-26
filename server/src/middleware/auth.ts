@@ -1,8 +1,8 @@
-import { verifyToken, logoutUser } from "../services/auth.ts";
+import { verifyToken } from "../services/auth.ts";
 import { hasRole } from "../services/users.ts";
 import type { MiddlewareHandler } from "hono";
 
-function getCookie(c: any, name: string): string | undefined {
+function getCookie(c: { req: { raw: { headers: { get: (name: string) => string | null } } }; }, name: string): string | undefined {
   const cookie = c.req.raw.headers.get("Cookie");
   if (!cookie) return undefined;
   const match = cookie.match(new RegExp(`${name}=([^;]+)`));

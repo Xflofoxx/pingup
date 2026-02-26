@@ -1,0 +1,30 @@
+bun test v1.3.9 (cf6cdbbb)
+2026-02-26T00:50:25.288Z [pingup] Agent created: test-agent-001
+2026-02-26T00:50:25.289Z [pingup] Agent created: test-agent-002
+2026-02-26T00:50:25.289Z [pingup] Agent created: agent-1
+2026-02-26T00:50:25.289Z [pingup] Agent created: agent-2
+2026-02-26T00:50:25.290Z [pingup] Agent created: agent-online
+2026-02-26T00:50:25.290Z [pingup] Agent created: agent-offline
+2026-02-26T00:50:25.290Z [pingup] Agent created: to-delete
+2026-02-26T00:50:25.290Z [pingup] Agent deleted: to-delete
+2026-02-26T00:50:25.291Z [pingup] Agent created: status-test
+2026-02-26T00:50:25.296Z [pingup] Agent created: cmd-agent-001
+2026-02-26T00:50:25.296Z [pingup] Command created: CMD-001 for agent cmd-agent-001
+2026-02-26T00:50:25.298Z [pingup] Agent created: cmd-agent-002
+2026-02-26T00:50:25.298Z [pingup] Command created: CMD-002 for agent cmd-agent-002
+2026-02-26T00:50:25.308Z [pingup] Agent created: cmd-agent-003
+2026-02-26T00:50:25.311Z [pingup] Command created: CMD-003a for agent cmd-agent-003
+2026-02-26T00:50:25.311Z [pingup] Command created: CMD-003b for agent cmd-agent-003
+2026-02-26T00:50:25.312Z [pingup] Agent created: cmd-agent-004
+2026-02-26T00:50:25.312Z [pingup] Command created: CMD-004a for agent cmd-agent-004
+2026-02-26T00:50:25.312Z [pingup] Command created: CMD-004b for agent cmd-agent-004
+2026-02-26T00:50:25.312Z [pingup] Command CMD-004a updated: completed
+2026-02-26T00:50:25.312Z [pingup] Agent created: cmd-agent-005
+2026-02-26T00:50:25.312Z [pingup] Command created: CMD-005a for agent cmd-agent-005
+2026-02-26T00:50:25.312Z [pingup] Command created: CMD-005b for agent cmd-agent-005
+2026-02-26T00:50:25.312Z [pingup] Command CMD-005a updated: completed
+2026-02-26T00:50:25.313Z [pingup] Agent created: cmd-agent-006
+2026-02-26T00:50:25.313Z [pingup] Command created: CMD-006 for agent cmd-agent-006
+2026-02-26T00:50:25.313Z [pingup] Command CMD-006 updated: completed
+2026-02-26T00:50:25.315Z [test] test message
+2026-02-26T00:50:25.315Z [test] debug message

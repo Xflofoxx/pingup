@@ -83,19 +83,11 @@ certificatesRouter.post("/:id/check", async (c) => {
 
   try {
     const url = `https://${cert.host}:${cert.port}`;
-    const timeout = new Promise<null>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 10000));
     
     const certInfo = await fetch(url, { 
       method: "HEAD",
       signal: AbortSignal.timeout(10000)
     }).then(() => {
-      const cipher = (cipher) => {
-        return {
-          version: cipher.version || "TLSv1.2",
-          name: cipher.name,
-          expires: cipher.authExpire ? new Date(cipher.authExpire * 1000).toISOString() : null
-        };
-      };
       return { 
         subject: cert.host, 
         issuer: "Unknown", 

@@ -122,7 +122,7 @@ export function queryMetrics(
 
 export function getAggregatedMetrics(
   agentId: string,
-  interval: string = "1 hour"
+  _interval: string = "1 hour"
 ): { bucket: string; avg_cpu: number; avg_ram: number; avg_disk: number; avg_latency: number; samples: number }[] {
   const db = getAnalyticsDb();
   

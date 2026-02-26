@@ -50,8 +50,7 @@ async function executeCommand(command: Command): Promise<{ success: boolean; mes
   }
 }
 
-async function collectAllMetrics(config: ReturnType<typeof getConfig>) {
-  const metrics: Record<string, any> = {};
+async function collectAllMetrics(config: ReturnType<typeof getConfig>): Promise<Record<string, unknown>> {
   const tempUnit = config.temperature_unit || "celsius";
   
   if (config.modules.includes("cpu")) {
@@ -94,7 +93,8 @@ app.get("/metrics", async (c) => {
   return c.json(metrics);
 });
 
-let latestMetrics: any = null;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let latestMetrics: Record<string, unknown> = {};
 
 async function main() {
   const configPath = process.argv[2] || "config.yaml";

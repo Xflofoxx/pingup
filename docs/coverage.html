@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pingup - Test Coverage Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <header class="border-b border-white/10 bg-gray-900/80 backdrop-blur-md fixed w-full z-50">
+        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 flex items-center justify-center">
+                    <i class="fas fa-network-wired text-white"></i>
+                </div>
+                <span class="text-xl font-bold gradient-text">Pingup</span>
+            </div>
+            <nav class="hidden md:flex items-center gap-6">
+                <a href="https://github.com/Xflofoxx/pingup" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition border border-white/10">
+                    <i class="fab fa-github mr-2"></i>GitHub
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="pt-24 pb-12">
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl font-bold mb-4">
+                <span class="gradient-text">Test Coverage Report</span>
+            </h1>
+            <p class="text-xl text-gray-400 mb-12">Version 1.4.0 - Generated February 2026</p>
+
+            <!-- Summary Cards -->
+            <div class="grid md:grid-cols-4 gap-6 mb-12">
+                <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5">
+                    <div class="text-sm text-gray-400 mb-2">Total Coverage</div>
+                    <div class="text-3xl font-bold text-green-400">92.5%</div>
+                    <div class="text-sm text-gray-500">Lines</div>
+                </div>
+                <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5">
+                    <div class="text-sm text-gray-400 mb-2">Server Functions</div>
+                    <div class="text-3xl font-bold text-green-400">90.48%</div>
+                    <div class="text-sm text-gray-500">Functions</div>
+                </div>
+                <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5">
+                    <div class="text-sm text-gray-400 mb-2">Agent Functions</div>
+                    <div class="text-3xl font-bold text-green-400">94.87%</div>
+                    <div class="text-sm text-gray-500">Functions</div>
+                </div>
+                <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5">
+                    <div class="text-sm text-gray-400 mb-2">Total Tests</div>
+                    <div class="text-3xl font-bold text-blue-400">56</div>
+                    <div class="text-sm text-gray-500">Passing</div>
+                </div>
+            </div>
+
+            <!-- Server Coverage -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold mb-6">Server Coverage</h2>
+                <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5 overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="text-left py-3 px-4 text-gray-400 font-medium">File</th>
+                                <th class="text-right py-3 px-4 text-gray-400 font-medium">Functions</th>
+                                <th class="text-right py-3 px-4 text-gray-400 font-medium">Lines</th>
+                                <th class="text-left py-3 px-4 text-gray-400 font-medium">Uncovered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4">All files</td>
+                                <td class="text-right py-3 px-4 text-green-400 font-bold">90.48%</td>
+                                <td class="text-right py-3 px-4 text-green-400 font-bold">94.15%</td>
+                                <td class="py-3 px-4"></td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/db/sqlite.ts</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">50.00%</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">72.97%</td>
+                                <td class="py-3 px-4 text-gray-500 text-sm">39-43, 47-51</td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/services/agent.ts</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">83.33%</td>
+                                <td class="text-right py-3 px-4 text-green-400">86.05%</td>
+                                <td class="py-3 px-4 text-gray-500 text-sm">62-67</td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/services/commands.ts</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="py-3 px-4 text-gray-500"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 text-gray-300">src/utils/logger.ts</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="py-3 px-4 text-gray-500"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-gray-400">
+                    <strong>19 tests passing</strong> - Server
+                </div>
+            </section>
+
+            <!-- Agent Coverage -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold mb-6">Agent Coverage</h2>
+                <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5 overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="text-left py-3 px-4 text-gray-400 font-medium">File</th>
+                                <th class="text-right py-3 px-4 text-gray-400 font-medium">Functions</th>
+                                <th class="text-right py-3 px-4 text-gray-400 font-medium">Lines</th>
+                                <th class="text-left py-3 px-4 text-gray-400 font-medium">Uncovered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4">All files</td>
+                                <td class="text-right py-3 px-4 text-green-400 font-bold">94.87%</td>
+                                <td class="text-right py-3 px-4 text-yellow-400 font-bold">86.80%</td>
+                                <td class="py-3 px-4"></td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/collectors/cpu.ts</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">67.44%</td>
+                                <td class="py-3 px-4 text-gray-500 text-sm">41-45, 47-51, 53-56</td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/collectors/disk.ts</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="py-3 px-4 text-gray-500"></td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/collectors/icmp.ts</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">66.67%</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">59.34%</td>
+                                <td class="py-3 px-4 text-gray-500 text-sm">51-54, 59-60, 69-75, 93-116</td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/collectors/network.ts</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">66.67%</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">50.91%</td>
+                                <td class="py-3 px-4 text-gray-500 text-sm">17-43</td>
+                            </tr>
+                            <tr class="border-b border-white/5">
+                                <td class="py-3 px-4 text-gray-300">src/collectors/ram.ts</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="py-3 px-4 text-gray-500"></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 text-gray-300">src/collectors/temperature.ts</td>
+                                <td class="text-right py-3 px-4 text-green-400">100.00%</td>
+                                <td class="text-right py-3 px-4 text-yellow-400">53.25%</td>
+                                <td class="py-3 px-4 text-gray-500 text-sm">23-30, 34-36, 38-41...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-gray-400">
+                    <strong>37 tests passing</strong> - Agent
+                </div>
+            </section>
+
+            <!-- Test Summary -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold mb-6">Test Summary</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5">
+                        <h3 class="text-lg font-semibold mb-4">Server Tests</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>Agent service tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>Commands service tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>Logger utility tests</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5">
+                        <h3 class="text-lg font-semibold mb-4">Agent Tests</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>CPU collector tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>RAM collector tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>Network collector tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>Disk collector tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>ICMP collector tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>Temperature collector tests</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i>Config tests</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Coverage Badge -->
+            <section>
+                <h2 class="text-2xl font-bold mb-6">Coverage Badges</h2>
+                <div class="bg-gray-800/50 rounded-2xl p-6 border border-white/5">
+                    <div class="flex flex-wrap gap-4">
+                        <span class="px-4 py-2 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400">
+                            <i class="fas fa-check-circle mr-2"></i>Server Functions: 90.48%
+                        </span>
+                        <span class="px-4 py-2 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400">
+                            <i class="fas fa-check-circle mr-2"></i>Server Lines: 94.15%
+                        </span>
+                        <span class="px-4 py-2 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400">
+                            <i class="fas fa-check-circle mr-2"></i>Agent Functions: 94.87%
+                        </span>
+                        <span class="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-yellow-400">
+                            <i class="fas fa-exclamation-circle mr-2"></i>Agent Lines: 86.80%
+                        </span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="border-t border-white/5 py-8 bg-gray-900/50">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                        <i class="fas fa-network-wired text-white text-sm"></i>
+                    </div>
+                    <p class="text-gray-500 text-sm">
+                        <span class="font-semibold text-gray-400">Pingup</span> &copy; 2026
+                    </p>
+                </div>
+                <div class="flex items-center gap-6 text-sm text-gray-500">
+                    <a href="https://github.com/Xflofoxx/pingup" class="hover:text-white transition"><i class="fab fa-github mr-1"></i>GitHub</a>
+                    <span>MIT License</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

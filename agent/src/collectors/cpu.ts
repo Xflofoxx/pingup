@@ -44,7 +44,7 @@ export async function measureLatency(host: string, timeout: number = 2): Promise
       host
     ]);
     
-    const [code, stdout, stderr] = await Promise.all([
+const [code] = await Promise.all([
       proc.exited,
       proc.stdout.text(),
       proc.stderr.text(),

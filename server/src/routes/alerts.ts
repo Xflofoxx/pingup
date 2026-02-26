@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { getDb } from "../db/sqlite.ts";
-import { listAgents } from "../services/agent.ts";
 
 export interface AlertThreshold {
   id: string;

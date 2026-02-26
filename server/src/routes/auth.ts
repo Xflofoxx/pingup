@@ -142,8 +142,7 @@ authRouter.post("/login", async (c) => {
       return c.json({ error: "Username and code are required" }, 400);
     }
     
-    const ipAddress = c.req.header("X-Forwarded-For") || c.req.header("CF-Connecting-IP") || "unknown";
-    const userAgent = c.req.header("User-Agent") || "unknown";
+const ipAddress = c.req.header("X-Forwarded-For") || c.req.header("CF-Connecting-IP") || "unknown";
     
     const result = await loginUser(username, code, ipAddress);
     

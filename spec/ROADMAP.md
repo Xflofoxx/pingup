@@ -130,32 +130,33 @@ None planned for this release.
 ## Version 1.4.0 - Enterprise Features
 
 **Target Date**: TBD  
+**Status**: Implemented
 **Focus**: Enterprise requirements
 
 ### Server Requirements
 
-| ID | Requirement |
-|----|-------------|
-| SERV-026 | Custom metrics |
-| SERV-027 | API rate limiting |
-| SERV-028 | LDAP/Active Directory integration |
-| SERV-029 | Backup and restore |
-| SERV-030 | API access tokens |
-| SERV-033 | Maintenance window |
-| SERV-034 | Data retention policies |
-| SERV-035 | Multi-tenant support |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SERV-026 | Custom metrics | Implemented |
+| SERV-027 | API rate limiting | Implemented |
+| SERV-028 | LDAP/Active Directory integration | Proposed |
+| SERV-029 | Backup and restore | Implemented |
+| SERV-030 | API access tokens | Proposed |
+| SERV-033 | Maintenance window | Proposed |
+| SERV-034 | Data retention policies | Proposed |
+| SERV-035 | Multi-tenant support | Proposed |
 
 ### Agent Requirements
 
-| ID | Requirement |
-|----|-------------|
-| AGENT-017 | Container metrics |
-| AGENT-018 | GPU metrics |
-| AGENT-020 | VPN detection |
-| AGENT-021 | WiFi metrics |
-| AGENT-022 | Battery status |
-| AGENT-024 | Log rotation |
-| AGENT-025 | Offline mode with local storage |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| AGENT-017 | Container metrics | Proposed |
+| AGENT-018 | GPU metrics | Proposed |
+| AGENT-020 | VPN detection | Proposed |
+| AGENT-021 | WiFi metrics | Proposed |
+| AGENT-022 | Battery status | Proposed |
+| AGENT-024 | Log rotation | Proposed |
+| AGENT-025 | Offline mode with local storage | Proposed |
 
 ---
 
@@ -218,17 +219,74 @@ None planned for this release.
 
 ---
 
+## Version 1.5.0 - IT/OT Convergence
+
+**Target Date**: TBD  
+**Status**: In Progress
+**Focus**: ISO compliance and OT security
+
+### Server Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SERV-036 | IEC 62443 compliance | Proposed |
+| SERV-037 | Performance gate (10K devices) | Proposed |
+| SERV-038 | ISO 27001 ISMS integration | Proposed |
+| SERV-039 | OT asset management | Proposed |
+| SERV-040 | OT security monitoring | Proposed |
+| SERV-041 | Network access control (NAC) | Proposed |
+| SERV-042 | OT vulnerability management | Proposed |
+
+### Agent Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| AGENT-026 | NetBIOS discovery | Proposed |
+| AGENT-027 | mDNS discovery | Proposed |
+| AGENT-028 | UPnP/SSDP discovery | Proposed |
+| AGENT-029 | ARP scanning | Proposed |
+| AGENT-030 | DHCP lease discovery | Proposed |
+| AGENT-031 | SNMP polling | Proposed |
+| AGENT-032 | Device fingerprinting | Proposed |
+| AGENT-033 | LLDP/CDP discovery | Proposed |
+
+---
+
+## Version 1.6.0 - Dashboard Usability
+
+**Target Date**: TBD  
+**Status**: Proposed
+**Focus**: Enhanced user experience and accessibility
+
+### Dashboard Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| DASH-01 | Responsive Design | Proposed |
+| DASH-02 | Dark/Light Theme | Proposed |
+| DASH-03 | Dashboard Notifications | Proposed |
+| DASH-04 | Offline Support | Proposed |
+| DASH-05 | Keyboard Shortcuts | Proposed |
+| DASH-06 | Custom Widgets | Proposed |
+| DASH-07 | Internationalization | Proposed |
+| DASH-08 | Accessibility | Proposed |
+| DASH-09 | Real-time Updates | Proposed |
+| DASH-10 | PWA Support | Proposed |
+
+---
+
 ## Release Schedule
 
-| Version | Focus | ETA |
-|---------|-------|-----|
-| 1.0.0 | Foundation | Released |
-| 1.1.0 | Alerting & Notifications | Q2 2026 |
-| 1.2.0 | Reporting & Export | Q2 2026 |
-| 1.3.0 | Advanced Monitoring | Q3 2026 |
-| 1.4.0 | Enterprise Features | Q3 2026 |
-| 1.5.0 | IT/OT Convergence | Q4 2026 |
-| 2.0.0 | Cloud & Scale | Q1 2027 |
+| Version | Focus | ETA | Status |
+|---------|-------|-----|--------|
+| 1.0.0 | Foundation | Released | ✅ |
+| 1.1.0 | Alerting & Notifications | Q2 2026 | ✅ |
+| 1.2.0 | Reporting & Export | Q2 2026 | ✅ |
+| 1.3.0 | Advanced Monitoring | Q3 2026 | ✅ |
+| 1.4.0 | Enterprise Features | Q3 2026 | ✅ |
+| 1.5.0 | IT/OT Convergence | Q4 2026 | 🔄 |
+| 1.6.0 | Dashboard Usability | Q4 2026 | 📋 |
+| 2.0.0 | Cloud & Scale | Q1 2027 | 📋 |
 
 ---
 
@@ -250,3 +308,9 @@ To contribute a new requirement:
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-02-25 | 1.0.0 | Initial roadmap created |
+| 2026-02-26 | 1.1.0 | Added Alerting & Notifications specs |
+| 2026-02-26 | 1.2.0 | Added Reporting & Export specs |
+| 2026-02-26 | 1.3.0 | Added Advanced Monitoring specs |
+| 2026-02-26 | 1.4.0 | Added Enterprise Features specs |
+| 2026-02-26 | 1.5.0 | Added IT/OT Convergence specs |
+| 2026-02-26 | 1.6.0 | Added Dashboard Usability specs (DASH-01 to DASH-10) |

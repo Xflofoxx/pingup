@@ -1,5 +1,3 @@
-import { os } from "bun";
-
 export interface NetworkMetrics {
   bytes_sent_mb: number;
   bytes_recv_mb: number;
@@ -10,7 +8,6 @@ export interface NetworkMetrics {
 let lastNetwork: { rx_bytes: number; tx_bytes: number; rx_packets: number; tx_packets: number } | null = null;
 
 function getWindowsNetworkStats(): { rx_bytes: number; tx_bytes: number; rx_packets: number; tx_packets: number } {
-  const proc = Bun.spawn(["netstat", "-e"]);
   return { rx_bytes: 0, tx_bytes: 0, rx_packets: 0, tx_packets: 0 };
 }
 
