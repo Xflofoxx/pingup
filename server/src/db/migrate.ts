@@ -367,6 +367,69 @@ sqliteDb.exec(`
   )
 `);
 
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS api_tokens (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    token_hash TEXT NOT NULL,
+    token_prefix TEXT NOT NULL,
+    scope TEXT NOT NULL DEFAULT 'read',
+    expires_at TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    last_used TEXT,
+    user_id TEXT NOT NULL
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_api_tokens_user ON api_tokens(user_id)`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS maintenance_windows (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    start_time TEXT NOT NULL,
+    end_time TEXT NOT NULL,
+    recurrence TEXT DEFAULT 'once',
+    enabled INTEGER DEFAULT 1,
+    agent_ids TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS retention_policies (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    data_type TEXT NOT NULL,
+    retention_days INTEGER NOT NULL,
+    enabled INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS tenants (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    domain TEXT UNIQUE NOT NULL,
+    settings TEXT DEFAULT '{}',
+    created_at TEXT DEFAULT (datetime('now')),
+    status TEXT DEFAULT 'active'
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS tenant_users (
+    tenant_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'member',
+    PRIMARY KEY (tenant_id, user_id),
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  )
+`);
+
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_name ON custom_metrics(name)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_agent ON custom_metrics_data(agent_id)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_time ON custom_metrics_data(timestamp)`);
