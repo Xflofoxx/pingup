@@ -32,6 +32,8 @@ import { retentionRouter } from "./routes/retention.ts";
 import { tenantsRouter } from "./routes/tenants.ts";
 import { complianceRouter } from "./routes/compliance.ts";
 import { otAssetsRouter } from "./routes/otAssets.ts";
+import { performanceRouter } from "./routes/performance.ts";
+import { ismsRouter } from "./routes/isms.ts";
 import { logger } from "./utils/logger.ts";
 import { listAgents } from "./services/agent.ts";
 import { getDeviceCount } from "./db/duckdb.ts";
@@ -99,6 +101,8 @@ app.route("/api/v1/retention", retentionRouter);
 app.route("/api/v1/tenants", tenantsRouter);
 app.route("/api/v1/compliance", complianceRouter);
 app.route("/api/v1/ot-assets", otAssetsRouter);
+app.route("/api/v1/performance", performanceRouter);
+app.route("/api/v1/isms", ismsRouter);
 app.route("/api_docs", swaggerRouter);
 app.route("/", dashboardRouter);
 

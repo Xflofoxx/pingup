@@ -473,6 +473,21 @@ sqliteDb.exec(`
   )
 `);
 
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS isms_controls (
+    id TEXT PRIMARY KEY,
+    domain TEXT NOT NULL,
+    control_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    implementation TEXT,
+    status TEXT DEFAULT 'not_implemented',
+    evidence TEXT DEFAULT '[]',
+    last_review TEXT,
+    owner TEXT
+  )
+`);
+
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_name ON custom_metrics(name)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_agent ON custom_metrics_data(agent_id)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_time ON custom_metrics_data(timestamp)`);
