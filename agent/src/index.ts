@@ -10,6 +10,7 @@ import { collectNetwork } from "./collectors/network.ts";
 import { collectTemperature } from "./collectors/temperature.ts";
 import { collectBattery } from "./collectors/battery.ts";
 import { detectVPN } from "./collectors/vpn.ts";
+import { collectContainers } from "./collectors/containers.ts";
 import { runCustomScripts } from "./collectors/customScripts.ts";
 import { HTTPSender, type Command } from "./transport/index.ts";
 import { Hono } from "hono";
@@ -88,6 +89,10 @@ async function collectAllMetrics(config: ReturnType<typeof getConfig>): Promise<
   
   if (config.modules.includes("vpn")) {
     metrics.vpn = detectVPN();
+  }
+  
+  if (config.modules.includes("containers")) {
+    metrics.containers = await collectContainers();
   }
   
   if (config.custom_scripts && config.custom_scripts.length > 0) {
