@@ -178,51 +178,7 @@ None planned for this release.
 ## Version 1.5.0 - IT/OT Convergence
 
 **Target Date**: TBD  
-**Focus**: ISO compliance and OT security
-
-### Server Requirements
-
-| ID | Requirement |
-|----|-------------|
-| SERV-036 | IEC 62443 compliance |
-| SERV-037 | Performance gate (10K devices) |
-| SERV-038 | ISO 27001 ISMS integration |
-| SERV-039 | OT asset management |
-| SERV-040 | OT security monitoring |
-| SERV-041 | Network access control (NAC) |
-| SERV-042 | OT vulnerability management |
-
-### Agent Requirements
-
-| ID | Requirement |
-|----|-------------|
-| AGENT-026 | NetBIOS discovery |
-| AGENT-027 | mDNS discovery |
-| AGENT-028 | UPnP/SSDP discovery |
-| AGENT-029 | ARP scanning |
-| AGENT-030 | DHCP lease discovery |
-| AGENT-031 | SNMP polling |
-| AGENT-032 | Device fingerprinting |
-| AGENT-033 | LLDP/CDP discovery |
-| AGENT-039 | Vulnerability scanning |
-| AGENT-040 | CVE tracking |
-| AGENT-041 | SSL/TLS analysis |
-| AGENT-042 | Intrusion detection |
-| AGENT-043 | Network segmentation |
-| AGENT-044 | Rogue DHCP detection |
-| AGENT-045 | Password audit |
-| AGENT-046 | Malware detection |
-| AGENT-047 | DNS security analysis |
-| AGENT-048 | Firewall audit |
-| AGENT-049 | Security compliance |
-| AGENT-050 | Threat intelligence |
-
----
-
-## Version 1.5.0 - IT/OT Convergence
-
-**Target Date**: TBD  
-**Status**: In Progress
+**Status**: In Progress  
 **Focus**: ISO compliance and OT security
 
 ### Server Requirements
@@ -249,29 +205,79 @@ None planned for this release.
 | AGENT-031 | SNMP polling | Proposed |
 | AGENT-032 | Device fingerprinting | Proposed |
 | AGENT-033 | LLDP/CDP discovery | Proposed |
+| AGENT-034 | Wake-on-LAN | Proposed |
+| AGENT-035 | Port service detection | Proposed |
+| AGENT-036 | BLE discovery | Proposed |
+| AGENT-037 | Zigbee/Z-Wave discovery | Proposed |
+| AGENT-038 | Network traffic analysis | Proposed |
+| AGENT-039 | Vulnerability scanning | Proposed |
+| AGENT-040 | CVE tracking | Proposed |
+| AGENT-041 | SSL/TLS analysis | Proposed |
+| AGENT-042 | Intrusion detection | Proposed |
+| AGENT-043 | Network segmentation | Proposed |
+| AGENT-044 | Rogue DHCP detection | Proposed |
+| AGENT-045 | Password audit | Proposed |
+| AGENT-046 | Malware detection | Proposed |
+| AGENT-047 | DNS security analysis | Proposed |
+| AGENT-048 | Firewall audit | Proposed |
+| AGENT-049 | Security compliance | Proposed |
+| AGENT-050 | Threat intelligence | Proposed |
 
 ---
 
 ## Version 1.6.0 - Dashboard Usability
 
-**Target Date**: TBD  
-**Status**: Proposed
+**Target Date**: 2026-02-26  
+**Status**: Released  
 **Focus**: Enhanced user experience and accessibility
 
 ### Dashboard Requirements
 
 | ID | Requirement | Status |
 |----|-------------|--------|
-| DASH-01 | Responsive Design | Proposed |
-| DASH-02 | Dark/Light Theme | Proposed |
-| DASH-03 | Dashboard Notifications | Proposed |
-| DASH-04 | Offline Support | Proposed |
-| DASH-05 | Keyboard Shortcuts | Proposed |
-| DASH-06 | Custom Widgets | Proposed |
-| DASH-07 | Internationalization | Proposed |
-| DASH-08 | Accessibility | Proposed |
-| DASH-09 | Real-time Updates | Proposed |
-| DASH-10 | PWA Support | Proposed |
+| DASH-01 | Responsive Design | ✅ Complete |
+| DASH-02 | Dark/Light Theme | ✅ Complete |
+| DASH-03 | Dashboard Notifications | ✅ Complete |
+| DASH-04 | Offline Support | ✅ Complete |
+| DASH-05 | Keyboard Shortcuts | ✅ Complete |
+| DASH-06 | Custom Widgets | ✅ Complete |
+| DASH-07 | Internationalization | ✅ Complete |
+| DASH-08 | Accessibility | ✅ Complete |
+| DASH-09 | Real-time Updates | ✅ Complete |
+| DASH-10 | PWA Support | ✅ Complete |
+
+---
+
+## Version 1.7.0 - Additional Server & Agent Features
+
+**Target Date**: TBD  
+**Status**: Proposed  
+**Focus**: Extended monitoring and discovery
+
+### Server Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SERV-028 | LDAP/Active Directory integration | Proposed |
+| SERV-030 | API access tokens | Proposed |
+| SERV-032 | Network topology map | Proposed |
+| SERV-033 | Maintenance window | Proposed |
+| SERV-034 | Data retention policies | Proposed |
+| SERV-035 | Multi-tenant support | Proposed |
+
+### Agent Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| AGENT-016 | Windows service support | Proposed |
+| AGENT-017 | Container metrics | Proposed |
+| AGENT-018 | GPU metrics | Proposed |
+| AGENT-019 | Custom scripts | Proposed |
+| AGENT-020 | VPN detection | Proposed |
+| AGENT-021 | WiFi metrics | Proposed |
+| AGENT-022 | Battery status | Proposed |
+| AGENT-024 | Log rotation | Proposed |
+| AGENT-025 | Offline mode with local storage | Proposed |
 
 ---
 
@@ -285,7 +291,8 @@ None planned for this release.
 | 1.3.0 | Advanced Monitoring | Q3 2026 | ✅ |
 | 1.4.0 | Enterprise Features | Q3 2026 | ✅ |
 | 1.5.0 | IT/OT Convergence | Q4 2026 | 🔄 |
-| 1.6.0 | Dashboard Usability | Q4 2026 | 📋 |
+| 1.6.0 | Dashboard Usability | Q4 2026 | ✅ |
+| 1.7.0 | Additional Features | TBD | 📋 |
 | 2.0.0 | Cloud & Scale | Q1 2027 | 📋 |
 
 ---
@@ -314,3 +321,4 @@ To contribute a new requirement:
 | 2026-02-26 | 1.4.0 | Added Enterprise Features specs |
 | 2026-02-26 | 1.5.0 | Added IT/OT Convergence specs |
 | 2026-02-26 | 1.6.0 | Added Dashboard Usability specs (DASH-01 to DASH-10) |
+| 2026-02-26 | 1.6.0 | Updated roadmap with all SERV and AGENT requirements, added v1.7.0 |
