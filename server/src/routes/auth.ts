@@ -176,6 +176,87 @@ authRouter.post("/logout", async (c) => {
   return c.json({ success: true });
 });
 
+authRouter.post("/forgot-password", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { username } = body;
+    
+    if (!username) {
+      return c.json({ error: "Username is required" }, 400);
+    }
+    
+    const user = getUserByUsername(username);
+    
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+    
+    if (!user.password_hash) {
+      return c.json({ error: "This account uses TOTP authentication, not password" }, 400);
+    }
+    
+    const resetToken = `rst_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`;
+    
+    const db = getDb();
+    db.prepare("UPDATE users SET metadata = ? WHERE id = ?").run(
+      JSON.stringify({ reset_token: resetToken, reset_expires: Date.now() + 3600000 }),
+      user.id
+    );
+    
+    logAudit(user.id, "password_reset_requested", "auth", `Password reset requested for user: ${username}`);
+    
+    return c.json({ 
+      message: "Password reset token generated",
+      reset_token: resetToken,
+      username: user.username
+    });
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 500);
+  }
+});
+
+authRouter.post("/reset-password", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { username, reset_token, new_password } = body;
+    
+    if (!username || !reset_token || !new_password) {
+      return c.json({ error: "Username, reset_token, and new_password are required" }, 400);
+    }
+    
+    if (new_password.length < 6) {
+      return c.json({ error: "Password must be at least 6 characters" }, 400);
+    }
+    
+    const user = getUserByUsername(username);
+    
+    if (!user) {
+      return c.json({ error: "User not found" }, 404);
+    }
+    
+    const db = getDb();
+    const metadata = user.metadata ? JSON.parse(user.metadata) : {};
+    
+    if (metadata.reset_token !== reset_token) {
+      logAudit(user.id, "password_reset_failed", "auth", "Invalid reset token");
+      return c.json({ error: "Invalid reset token" }, 401);
+    }
+    
+    if (metadata.reset_expires && Date.now() > metadata.reset_expires) {
+      return c.json({ error: "Reset token has expired" }, 401);
+    }
+    
+    const newHash = hashPassword(new_password);
+    db.prepare("UPDATE users SET password_hash = ?, metadata = NULL WHERE id = ?").run(newHash, user.id);
+    
+    logAudit(user.id, "password_reset_success", "auth", "Password reset successfully");
+    
+    return c.json({ message: "Password reset successfully" });
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 500);
+  }
+});
+
 authRouter.get("/me", async (c) => {
   const token = getCookie(c, "auth_token");
   

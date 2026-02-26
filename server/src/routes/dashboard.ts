@@ -471,9 +471,13 @@ function getLoginPage() {
 
         <div id="error" class="mt-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm hidden"></div>
 
-        <div class="text-center mt-6">
+<div class="text-center mt-6">
           <a href="/register" class="text-blue-400 hover:text-blue-300 text-sm">
             Non hai un account? <span class="font-semibold">Registrati</span>
+          </a>
+          <span class="text-gray-500 mx-2">|</span>
+          <a href="/forgot-password" class="text-purple-400 hover:text-purple-300 text-sm">
+            Password dimenticata?
           </a>
         </div>
       </div>
@@ -970,3 +974,162 @@ dashboardRouter.get("/logout", async (c) => {
   
   return c.redirect("/");
 });
+
+dashboardRouter.get("/forgot-password", (c) => {
+  return c.html(getForgotPasswordPage());
+});
+
+dashboardRouter.post("/forgot-password", async (c) => {
+  const body = await c.req.parseBody();
+  const username = body.username as string;
+  
+  try {
+    const res = await fetch(`${c.req.header("origin") || "http://localhost:3000"}/api/v1/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+    
+    const data = await res.json();
+    
+    if (!res.ok) {
+      return c.html(getForgotPasswordPage(data.error));
+    }
+    
+    return c.html(getResetPasswordPage(username, data.reset_token));
+  } catch (error) {
+    return c.html(getForgotPasswordPage((error as Error).message));
+  }
+});
+
+function getForgotPasswordPage(error?: string) {
+  return HTML_HEADER + `
+  <div class="min-h-screen flex items-center justify-center relative overflow-hidden py-8">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+      <div class="absolute bottom-1/3 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 2s"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 mb-4">
+          <i class="fas fa-key text-white text-2xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white">Recupera Password</h1>
+        <p class="text-gray-400 mt-2">Inserisci il tuo username</p>
+      </div>
+
+      <div class="card-glass rounded-2xl p-8">
+        ${error ? `<div class="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm">${error}</div>` : ''}
+        
+        <form method="POST" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+            <input type="text" name="username" required
+              class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+          </div>
+          <button type="submit"
+            class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl transition">
+            <i class="fas fa-paper-plane mr-2"></i>Invia richiesta
+          </button>
+        </form>
+
+        <div class="text-center mt-6">
+          <a href="/login" class="text-blue-400 hover:text-blue-300 text-sm">
+            Torna al <span class="font-semibold">Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function getResetPasswordPage(username: string, resetToken: string, error?: string) {
+  return HTML_HEADER + `
+  <div class="min-h-screen flex items-center justify-center relative overflow-hidden py-8">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+      <div class="absolute bottom-1/3 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay: 2s"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-blue-500 mb-4">
+          <i class="fas fa-lock text-white text-2xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white">Nuova Password</h1>
+        <p class="text-gray-400 mt-2">Inserisci la tua nuova password</p>
+      </div>
+
+      <div class="card-glass rounded-2xl p-8">
+        ${error ? `<div class="mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm">${error}</div>` : ''}
+        
+        <form id="resetForm" class="space-y-4">
+          <input type="hidden" name="username" value="${username}">
+          <input type="hidden" name="reset_token" value="${resetToken}">
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Nuova Password</label>
+            <input type="password" name="new_password" required minlength="6"
+              class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Conferma Password</label>
+            <input type="password" name="confirm_password" required minlength="6"
+              class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+          </div>
+          <button type="submit"
+            class="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-semibold py-3 rounded-xl transition">
+            <i class="fas fa-save mr-2"></i>Reimposta Password
+          </button>
+        </form>
+
+        <div class="text-center mt-6">
+          <a href="/login" class="text-blue-400 hover:text-blue-300 text-sm">
+            Torna al <span class="font-semibold">Login</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('resetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const newPassword = form.get('new_password');
+      const confirmPassword = form.get('confirm_password');
+      
+      if (newPassword !== confirmPassword) {
+        alert('Le password non coincidono!');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/v1/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: form.get('username'),
+            reset_token: form.get('reset_token'),
+            new_password: newPassword
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          alert(data.error || 'Password reset failed');
+          return;
+        }
+        
+        alert('Password reimpostata con successo! Ora puoi effettuare il login.');
+        window.location.href = '/login';
+      } catch (err) {
+        alert('Errore: ' + err.message);
+      }
+    });
+  </script>
+  `;
+}

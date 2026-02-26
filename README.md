@@ -320,3 +320,75 @@ cd server && bun run lint
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+## Release Notes
+
+### Version 1.3.0 - Advanced Monitoring
+**Release Date**: TBD
+
+Advanced monitoring features for process, service, SSL certificate, and bandwidth tracking.
+
+**Server Features:**
+- SSL Certificate Monitoring (SERV-022): Monitor SSL certificate expiration for configured hosts
+- Bandwidth Monitoring (SERV-023): Track network bandwidth usage per agent and interface
+- Process Monitoring (SERV-024): Monitor running processes on agents and track resource usage
+- Service Monitoring (SERV-025): Monitor system services/daemons status on agents
+- Password Recovery: Reset password for local users
+
+---
+
+### Version 1.2.0 - Reporting & Export
+**Release Date**: TBD
+
+Data export and reporting capabilities for integration with external monitoring systems.
+
+**Server Features:**
+- Scheduled Reports (SERV-019): Generate daily/weekly/monthly reports
+- Prometheus Export (SERV-020): Export metrics in Prometheus format
+- Grafana Integration (SERV-021): Native integration with Grafana
+
+---
+
+### Version 1.1.0 - Alerting & Notifications
+**Release Date**: February 2026
+
+Basic alerting system with thresholds and notifications for proactive monitoring.
+
+**Server Features:**
+- Agent Groups (SERV-018): Organize agents into logical groups
+- Alert Thresholds (SERV-016): Define custom alerts for CPU, RAM, disk, latency
+- Alert Notifications (SERV-017): Email, webhook, and in-app notifications
+
+**Agent Features:**
+- Temperature Monitoring (AGENT-023): CPU, GPU, disk temperature collection
+
+---
+
+### Version 1.0.0 - Core Platform
+**Release Date**: February 2026
+
+Initial release with core monitoring capabilities and dashboard.
+
+**Server Features:**
+- REST API for metrics ingestion (SERV-001)
+- DuckDB storage for metrics history (SERV-002)
+- Agent registry and management (SERV-003)
+- Command queue and execution (SERV-004, SERV-005)
+- Agent configuration management (SERV-006)
+- HMAC payload verification (SERV-007)
+- Health check endpoints (SERV-008)
+- Metrics history queries (SERV-009)
+- Network discovery data storage (SERV-010)
+- Dashboard with TOTP authentication (SERV-011)
+- Role-based access control (SERV-012)
+- User management (SERV-014)
+
+**Agent Features:**
+- CPU, RAM, disk, network metrics collection
+- ICMP ping latency measurement
+- Secure payload signing
+- Bearer token authentication
+- Remote command execution
+- Network discovery with port scanning

@@ -61,38 +61,40 @@ This document outlines the planned versions and their associated.
 
 ## Version 1.1.0 - Alerting & Notifications
 
-**Target Date**: TBD  
+**Target Date**: February 2026  
+**Status**: Implemented
 **Focus**: Alerting system
 
 ### Server Requirements
 
-| ID | Requirement |
-|----|-------------|
-| SERV-016 | Alert thresholds |
-| SERV-017 | Alert notifications |
-| SERV-018 | Agent groups |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SERV-016 | Alert thresholds | Implemented |
+| SERV-017 | Alert notifications | Implemented |
+| SERV-018 | Agent groups | Implemented |
 
 ### Agent Requirements
 
-| ID | Requirement |
-|----|-------------|
-| AGENT-023 | Temperature monitoring |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| AGENT-023 | Temperature monitoring | Implemented |
 
 ---
 
 ## Version 1.2.0 - Reporting & Export
 
 **Target Date**: TBD  
+**Status**: Implemented
 **Focus**: Data export and reporting
 
 ### Server Requirements
 
-| ID | Requirement |
-|----|-------------|
-| SERV-019 | Scheduled reports |
-| SERV-020 | Prometheus export |
-| SERV-021 | Grafana integration |
-| SERV-031 | Audit log export |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SERV-019 | Scheduled reports | Implemented |
+| SERV-020 | Prometheus export | Implemented |
+| SERV-021 | Grafana integration | Implemented |
+| SERV-031 | Audit log export | Proposed |
 
 ### Agent Requirements
 
@@ -103,24 +105,25 @@ None planned for this release.
 ## Version 1.3.0 - Advanced Monitoring
 
 **Target Date**: TBD  
+**Status**: Implemented
 **Focus**: Process and service monitoring
 
 ### Server Requirements
 
-| ID | Requirement |
-|----|-------------|
-| SERV-022 | SSL certificate monitoring |
-| SERV-023 | Bandwidth monitoring |
-| SERV-024 | Process monitoring |
-| SERV-025 | Service monitoring |
-| SERV-032 | Network topology map |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SERV-022 | SSL certificate monitoring | Implemented |
+| SERV-023 | Bandwidth monitoring | Implemented |
+| SERV-024 | Process monitoring | Implemented |
+| SERV-025 | Service monitoring | Implemented |
+| SERV-032 | Network topology map | Proposed |
 
 ### Agent Requirements
 
-| ID | Requirement |
-|----|-------------|
-| AGENT-016 | Windows service support |
-| AGENT-019 | Custom scripts |
+| ID | Requirement | Status |
+|----|-------------|--------|
+| AGENT-016 | Windows service support | Proposed |
+| AGENT-019 | Custom scripts | Proposed |
 
 ---
 

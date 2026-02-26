@@ -207,5 +207,102 @@ sqliteDb.exec(`
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_alert_history_agent ON alert_history(agent_id)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_alert_history_triggered ON alert_history(triggered_at)`);
 
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS scheduled_reports (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    schedule TEXT NOT NULL,
+    format TEXT NOT NULL DEFAULT 'json',
+    recipients TEXT,
+    enabled INTEGER DEFAULT 1,
+    last_run TEXT,
+    next_run TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_reports_next_run ON scheduled_reports(next_run)`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS monitored_certificates (
+    id TEXT PRIMARY KEY,
+    host TEXT NOT NULL,
+    port INTEGER DEFAULT 443,
+    agent_id TEXT,
+    check_interval INTEGER DEFAULT 3600,
+    alert_before_days INTEGER DEFAULT 30,
+    enabled INTEGER DEFAULT 1,
+    last_check TEXT,
+    last_status TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS certificate_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    certificate_id TEXT NOT NULL,
+    subject TEXT,
+    issuer TEXT,
+    valid_from TEXT,
+    valid_until TEXT,
+    days_remaining INTEGER,
+    status TEXT,
+    checked_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (certificate_id) REFERENCES monitored_certificates(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS watched_processes (
+    id TEXT PRIMARY KEY,
+    agent_id TEXT NOT NULL,
+    process_name TEXT NOT NULL,
+    alert_on_stop INTEGER DEFAULT 1,
+    alert_on_high_cpu REAL,
+    alert_on_high_memory REAL,
+    enabled INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS watched_services (
+    id TEXT PRIMARY KEY,
+    agent_id TEXT NOT NULL,
+    service_name TEXT NOT NULL,
+    alert_on_stop INTEGER DEFAULT 1,
+    enabled INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_certificates_host ON monitored_certificates(host)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_cert_history_cert ON certificate_history(certificate_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_watched_processes_agent ON watched_processes(agent_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_watched_services_agent ON watched_services(agent_id)`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS bandwidth_metrics (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    agent_id TEXT NOT NULL,
+    interface_name TEXT NOT NULL,
+    bytes_sent INTEGER DEFAULT 0,
+    bytes_recv INTEGER DEFAULT 0,
+    packets_sent INTEGER DEFAULT 0,
+    packets_recv INTEGER DEFAULT 0,
+    timestamp TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_bandwidth_agent_time ON bandwidth_metrics(agent_id, timestamp)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_bandwidth_interface ON bandwidth_metrics(interface_name)`);
+
 console.log("SQLite migration complete");
 console.log("All migrations complete!");

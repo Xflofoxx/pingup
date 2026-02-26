@@ -74,7 +74,7 @@ export function collectTemperature(unit: "celsius" | "fahrenheit" = "celsius"): 
       const thermalDirs = ["/sys/class/thermal/thermal_zone0/temp", "/proc/acpi/thermal"];
       for (const dir of thermalDirs) {
         try {
-          const content = await Bun.file(dir).text();
+          const content = Bun.file(dir).text();
           const temp = parseInt(content.trim()) / 1000;
           if (temp > 0 && temp < 150) {
             temps.cpu = temp;
