@@ -430,6 +430,49 @@ sqliteDb.exec(`
   )
 `);
 
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS compliance_zones (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    security_level INTEGER DEFAULT 1,
+    network_segment TEXT,
+    devices TEXT DEFAULT '[]',
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS ot_assets (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    manufacturer TEXT,
+    model TEXT,
+    firmware TEXT,
+    ip_address TEXT,
+    mac_address TEXT,
+    location TEXT,
+    zone_id TEXT,
+    risk_level TEXT DEFAULT 'medium',
+    vulnerabilities TEXT DEFAULT '[]',
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (zone_id) REFERENCES compliance_zones(id)
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS vulnerability_scans (
+    id TEXT PRIMARY KEY,
+    asset_id TEXT NOT NULL,
+    scan_date TEXT,
+    vulnerabilities_found INTEGER DEFAULT 0,
+    severity TEXT,
+    details TEXT,
+    FOREIGN KEY (asset_id) REFERENCES ot_assets(id)
+  )
+`);
+
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_name ON custom_metrics(name)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_agent ON custom_metrics_data(agent_id)`);
 sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_custom_metrics_data_time ON custom_metrics_data(timestamp)`);
