@@ -20,13 +20,175 @@ const HTML_HEADER = `
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pingup - Network Monitoring</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Theme management
+    (function() {
+      const savedTheme = localStorage.getItem('pingup-theme');
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .sidebar { width: 260px; }
-    .content { margin-left: 260px; }
-    @media (max-width: 768px) { .sidebar { display: none; } .content { margin-left: 0; } }
+    :root {
+      --sidebar-width: 260px;
+      --header-height: 64px;
+      /* Dark theme (default) */
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-surface: rgba(30, 41, 59, 0.7);
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent-blue: #60a5f4;
+      --accent-green: #34d399;
+      --accent-purple: #a78bfa;
+    }
+    
+    [data-theme="light"] {
+      --bg-primary: #f9fafb;
+      --bg-secondary: #ffffff;
+      --bg-surface: rgba(255, 255, 255, 0.8);
+      --text-primary: #111827;
+      --text-secondary: #4b5563;
+      --text-muted: #9ca3af;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+    }
+    
+    [data-theme="light"] body {
+      background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 50%, #f9fafb 100%);
+      color: var(--text-primary);
+    }
+    
+    [data-theme="light"] .gradient-bg {
+      background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 50%, #f9fafb 100%);
+    }
+    
+    [data-theme="light"] .glass-card,
+    [data-theme="light"] .card-glass {
+      background: var(--bg-surface);
+      border-color: var(--border-color);
+    }
+    
+    [data-theme="light"] .text-gray-100,
+    [data-theme="light"] .text-gray-200,
+    [data-theme="light"] .text-gray-300,
+    [data-theme="light"] .text-gray-400 {
+      color: var(--text-primary) !important;
+    }
+    
+    [data-theme="light"] .text-gray-500 {
+      color: var(--text-secondary) !important;
+    }
+    
+    [data-theme="light"] .bg-gray-900,
+    [data-theme="light"] .bg-gray-800 {
+      background: var(--bg-secondary) !important;
+    }
+    
+    [data-theme="light"] .border-white\/5,
+    [data-theme="light"] .border-white\/10 {
+      border-color: var(--border-color) !important;
+    }
+    
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-primary); color: var(--text-primary); }
+    
+    /* Responsive Breakpoints */
+    /* Mobile: < 640px */
+    /* Tablet: 640px - 1024px */
+    /* Desktop: > 1024px */
+    
+    .sidebar { 
+      width: var(--sidebar-width); 
+      transition: transform 0.3s ease;
+    }
+    .content { 
+      margin-left: var(--sidebar-width); 
+      transition: margin-left 0.3s ease;
+    }
+    
+    /* Mobile styles (< 640px) */
+    @media (max-width: 639px) {
+      .sidebar { 
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 100;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .content { margin-left: 0; }
+      .mobile-header { display: flex; }
+      .desktop-header { display: none; }
+      .hide-mobile { display: none !important; }
+      .bottom-nav { display: flex; }
+      .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    }
+    
+    /* Tablet styles (640px - 1024px) */
+    @media (min-width: 640px) and (max-width: 1024px) {
+      .sidebar {
+        width: 80px;
+        overflow: hidden;
+      }
+      .sidebar:hover, .sidebar.expanded {
+        width: var(--sidebar-width);
+      }
+      .sidebar .nav-text,
+      .sidebar .sidebar-title,
+      .sidebar .user-info {
+        display: none;
+      }
+      .sidebar:hover .nav-text,
+      .sidebar:hover .sidebar-title,
+      .sidebar:hover .user-info {
+        display: block;
+      }
+      .content { margin-left: 80px; }
+      .sidebar:hover + .content,
+      .content:has(~ .sidebar:hover) {
+        margin-left: var(--sidebar-width);
+      }
+      .mobile-header { display: flex; }
+      .desktop-header { display: none; }
+      .bottom-nav { display: flex; }
+      .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    
+    /* Desktop styles (> 1024px) */
+    @media (min-width: 1025px) {
+      .sidebar { position: fixed; }
+      .content { margin-left: var(--sidebar-width); }
+      .mobile-header { display: none; }
+      .desktop-header { display: flex; }
+      .bottom-nav { display: none; }
+    }
+    
+    /* Touch-friendly buttons (min 44px) */
+    .btn, button, a.btn, 
+    input[type="submit"],
+    .nav-item,
+    .menu-item {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Collapsible sections */
+    .collapsible-header { cursor: pointer; user-select: none; }
+    .collapsible-content { 
+      max-height: 0; 
+      overflow: hidden; 
+      transition: max-height 0.3s ease;
+    }
+    .collapsible-content.open { max-height: 1000px; }
+    .collapsible-icon { transition: transform 0.3s ease; }
+    .collapsible-icon.rotated { transform: rotate(180deg); }
+    
     .gradient-bg {
       background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
     }
@@ -112,6 +274,116 @@ const HTML_HEADER = `
   </style>
 </head>
 <body class="gradient-bg text-gray-100 min-h-screen">
+  <!-- Mobile Header -->
+  <header class="mobile-header fixed top-0 left-0 right-0 h-16 bg-gray-900/95 backdrop-blur-xl border-b border-white/5 z-50 px-4 flex items-center justify-between">
+    <button id="mobile-menu-btn" class="btn p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white">
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 flex items-center justify-center">
+        <i class="fas fa-network-wired text-white text-sm"></i>
+      </div>
+      <span class="font-bold text-white">Pingup</span>
+    </div>
+    <button id="theme-toggle" class="btn p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white" onclick="toggleTheme()">
+      <i class="fas fa-moon text-xl" id="theme-icon"></i>
+    </button>
+  </header>
+
+  <!-- Bottom Navigation for Mobile -->
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 h-16 bg-gray-900/95 backdrop-blur-xl border-t border-white/5 z-50 px-2 py-2 justify-around items-center">
+    <a href="/dashboard" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-blue-400 transition">
+      <i class="fas fa-home text-xl"></i>
+      <span class="text-xs mt-1">Home</span>
+    </a>
+    <a href="/dashboard/agents" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-blue-400 transition">
+      <i class="fas fa-server text-xl"></i>
+      <span class="text-xs mt-1">Agenti</span>
+    </a>
+    <a href="/dashboard/security" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-blue-400 transition">
+      <i class="fas fa-shield-alt text-xl"></i>
+      <span class="text-xs mt-1">Sicurezza</span>
+    </a>
+    <button id="mobile-user-btn" class="flex flex-col items-center justify-center p-2 text-gray-400 hover:text-blue-400 transition">
+      <i class="fas fa-user text-xl"></i>
+      <span class="text-xs mt-1">Profilo</span>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu Overlay -->
+  <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeMobileMenu()"></div>
+  
+  <script>
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (mobileMenuBtn && sidebar) {
+      mobileMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        sidebar.classList.toggle('open');
+        mobileOverlay.classList.toggle('hidden');
+      });
+    }
+    
+    function closeMobileMenu() {
+      if (sidebar) sidebar.classList.remove('open');
+      if (mobileOverlay) mobileOverlay.classList.add('hidden');
+    }
+    
+    // Close menu on navigation
+    document.querySelectorAll('.sidebar a').forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+    
+    // Collapsible sections
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+      header.addEventListener('click', function() {
+        const content = this.nextElementSibling;
+        const icon = this.querySelector('.collapsible-icon');
+        if (content) content.classList.toggle('open');
+        if (icon) icon.classList.toggle('rotated');
+      });
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Close mobile menu on Escape
+      if (e.key === 'Escape') {
+        closeMobileMenu();
+      }
+    });
+    
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('pingup-theme', newTheme);
+      updateThemeIcon();
+    }
+    
+    function updateThemeIcon() {
+      const icon = document.getElementById('theme-icon');
+      if (icon) {
+        const theme = document.documentElement.getAttribute('data-theme');
+        icon.className = theme === 'dark' ? 'fas fa-moon text-xl' : 'fas fa-sun text-xl';
+      }
+    }
+    
+    // Update theme icon on load
+    updateThemeIcon();
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+      if (!localStorage.getItem('pingup-theme')) {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+        updateThemeIcon();
+      }
+    });
+  </script>
 `;
 
 const PUBLIC_DASHBOARD = `
@@ -656,10 +928,10 @@ function getDashboardLayout(user: { username: string; role: string }) {
     <aside class="sidebar fixed left-0 top-0 h-full bg-gray-900/80 backdrop-blur-xl border-r border-white/5 p-4 z-50">
       <div class="mb-8 pt-2">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 flex items-center justify-center">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
             <i class="fas fa-network-wired text-white"></i>
           </div>
-          <div>
+          <div class="sidebar-title">
             <h1 class="text-xl font-bold gradient-text">Pingup</h1>
             <p class="text-xs text-gray-500 -mt-1">Dashboard</p>
           </div>
@@ -667,31 +939,31 @@ function getDashboardLayout(user: { username: string; role: string }) {
       </div>
       
       <nav class="space-y-1.5">
-        <a href="/dashboard" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400 border border-blue-500/20 hover:from-blue-500/30 hover:to-purple-500/30 transition">
-          <i class="fas fa-home w-5"></i> <span class="font-medium">Dashboard</span>
+        <a href="/dashboard" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400 border border-blue-500/20 hover:from-blue-500/30 hover:to-purple-500/30 transition btn">
+          <i class="fas fa-home w-5"></i> <span class="nav-text font-medium">Dashboard</span>
         </a>
         
         ${hasRole(user.role, "IT") ? `
-        <a href="/dashboard/agents" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5">
-          <i class="fas fa-server w-5"></i> <span class="font-medium">Agenti</span>
+        <a href="/dashboard/agents" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
+          <i class="fas fa-server w-5"></i> <span class="nav-text font-medium">Agenti</span>
         </a>
-        <a href="/dashboard/commands" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5">
-          <i class="fas fa-terminal w-5"></i> <span class="font-medium">Comandi</span>
+        <a href="/dashboard/commands" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
+          <i class="fas fa-terminal w-5"></i> <span class="nav-text font-medium">Comandi</span>
         </a>
         ` : ''}
         
         ${hasRole(user.role, "SUP") ? `
-        <a href="/dashboard/security" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5">
-          <i class="fas fa-shield-alt w-5"></i> <span class="font-medium">Sicurezza</span>
+        <a href="/dashboard/security" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
+          <i class="fas fa-shield-alt w-5"></i> <span class="nav-text font-medium">Sicurezza</span>
         </a>
         ` : ''}
         
         ${hasRole(user.role, "ADM") ? `
-        <a href="/dashboard/users" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5">
-          <i class="fas fa-users w-5"></i> <span class="font-medium">Utenti</span>
+        <a href="/dashboard/users" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
+          <i class="fas fa-users w-5"></i> <span class="nav-text font-medium">Utenti</span>
         </a>
-        <a href="/dashboard/audit" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5">
-          <i class="fas fa-clipboard-list w-5"></i> <span class="font-medium">Audit Log</span>
+        <a href="/dashboard/audit" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
+          <i class="fas fa-clipboard-list w-5"></i> <span class="nav-text font-medium">Audit Log</span>
         </a>
         ` : ''}
       </nav>
@@ -699,23 +971,23 @@ function getDashboardLayout(user: { username: string; role: string }) {
       <div class="absolute bottom-4 left-4 right-4">
         <div class="glass-card rounded-2xl p-4 mb-3 border border-white/5">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl bg-gradient-to-r ${roleColors[user.role]} flex items-center justify-center shadow-lg">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-r ${roleColors[user.role]} flex items-center justify-center shadow-lg flex-shrink-0">
               <i class="fas fa-user text-white"></i>
             </div>
-            <div class="flex-1 min-w-0">
+            <div class="user-info flex-1 min-w-0">
               <p class="font-semibold text-white truncate">${user.username}</p>
               <p class="text-xs text-gray-400">${roleLabels[user.role]}</p>
             </div>
           </div>
         </div>
         
-        <a href="/api/v1/auth/logout" class="flex items-center justify-center gap-2 w-full px-4 py-3.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition border border-red-500/20">
-          <i class="fas fa-sign-out-alt"></i> <span class="font-medium">Logout</span>
+        <a href="/api/v1/auth/logout" class="flex items-center justify-center gap-2 w-full px-4 py-3.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition border border-red-500/20 btn">
+          <i class="fas fa-sign-out-alt"></i> <span class="nav-text font-medium">Logout</span>
         </a>
       </div>
     </aside>
     
-    <main class="content flex-1 p-8 relative z-10">
+    <main class="content flex-1 p-4 md:p-6 lg:p-8 relative z-10 pt-20 md:pt-24 lg:pt-8">
 `;
 }
 
