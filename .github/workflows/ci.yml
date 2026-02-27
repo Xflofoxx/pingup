@@ -15,26 +15,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '20'
-          cache: 'npm'
+          bun-version: '1.1'
 
       - name: Install dependencies
         run: |
-          cd server && npm ci
-          cd ../agent && npm ci
+          cd server && bun install
+          cd ../agent && bun install
 
       - name: Run linter
         run: |
-          cd server && npm run lint
-          cd ../agent && npm run lint
+          cd server && bun run lint
+          cd ../agent && bun run lint
 
       - name: Run tests
         run: |
-          cd server && npm test
-          cd ../agent && npm test
+          cd server && bun test
+          cd ../agent && bun test
 
   security-audit:
     name: Security Audit
@@ -44,18 +43,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '20'
-          cache: 'npm'
+          bun-version: '1.1'
 
       - name: Install dependencies
         run: |
-          cd server && npm ci
-          cd ../agent && npm ci
+          cd server && bun install
+          cd ../agent && bun install
 
       - name: Run security audit
         run: |
-          cd server && npm audit --audit-level=moderate
-          cd ../agent && npm audit --audit-level=moderate
+          cd server && bun audit
+          cd ../agent && bun audit

@@ -15,12 +15,12 @@ services:
       - DEFAULT_TIMEOUT_MS=5000
       - CHECK_CONCURRENCY=5
       - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
-      - DATABASE_PATH=/app/data/pingup.db
+      - DATABASE_PATH=/app/server/data/pingup.db
     volumes:
       - pingup-data:/app/server/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "bun", "run", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1))"]
       interval: 30s
       timeout: 10s
       retries: 3
