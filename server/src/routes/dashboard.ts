@@ -606,6 +606,76 @@ const HTML_HEADER = `
         updateThemeIcon();
       }
     });
+    
+    // DASH-09 Real-time Updates via Server-Sent Events
+    let eventSource = null;
+    
+    function connectSSE() {
+      if (eventSource) eventSource.close();
+      
+      try {
+        eventSource = new EventSource('/api/v1/realtime/events?channel=all');
+        
+        eventSource.onopen = function() {
+          console.log('SSE connected');
+          const sseIndicator = document.getElementById('sse-status');
+          if (sseIndicator) {
+            sseIndicator.className = 'text-green-400 text-xs';
+            sseIndicator.innerHTML = '<i class="fas fa-bolt mr-1"></i>Real-time';
+          }
+        };
+        
+        eventSource.onmessage = function(event) {
+          try {
+            const data = JSON.parse(event.data);
+            handleRealtimeEvent(data);
+          } catch (e) {
+            console.error('Failed to parse SSE event:', e);
+          }
+        };
+        
+        eventSource.onerror = function() {
+          console.log('SSE connection error, reconnecting...');
+          const sseIndicator = document.getElementById('sse-status');
+          if (sseIndicator) {
+            sseIndicator.className = 'text-yellow-400 text-xs';
+            sseIndicator.innerHTML = '<i class="fas fa-sync fa-spin mr-1"></i>Reconnecting...';
+          }
+          eventSource.close();
+          setTimeout(connectSSE, 5000);
+        };
+      } catch (e) {
+        console.error('Failed to connect SSE:', e);
+      }
+    }
+    
+    function handleRealtimeEvent(data) {
+      if (data.type === 'agent_status') {
+        const statusEl = document.getElementById('agent-status-' + data.agent_id);
+        if (statusEl) {
+          statusEl.textContent = data.status;
+          statusEl.className = data.status === 'online' ? 'text-green-400' : 'text-gray-400';
+        }
+      }
+      if (data.type === 'metrics_update') {
+        console.log('New metrics for', data.agent_id);
+      }
+      if (data.type === 'alert_triggered') {
+        showNotification(data.alert);
+      }
+    }
+    
+    function showNotification(alert) {
+      const notification = new Notification('Pingup Alert', {
+        body: alert.message || 'New alert triggered',
+        icon: '/favicon.ico'
+      });
+    }
+    
+    // Connect SSE on dashboard pages
+    if (window.location.pathname.startsWith('/dashboard')) {
+      connectSSE();
+    }
   </script>
 `;
 
