@@ -28,6 +28,34 @@ const HTML_HEADER = `
       const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
     })();
+    
+    // DASH-07 Internationalization
+    const translations = {
+      en: { dashboard: 'Dashboard', agents: 'Agents', security: 'Security', users: 'Users', auditLog: 'Audit Log', commands: 'Commands', logout: 'Logout', connected: 'Connected', offline: 'Offline' },
+      it: { dashboard: 'Dashboard', agents: 'Agenti', security: 'Sicurezza', users: 'Utenti', auditLog: 'Audit Log', commands: 'Comandi', logout: 'Logout', connected: 'Connesso', offline: 'Offline' },
+      es: { dashboard: 'Panel', agents: 'Agentes', security: 'Seguridad', users: 'Usuarios', auditLog: 'Registro', commands: 'Comandos', logout: 'Cerrar', connected: 'Conectado', offline: 'Sin conexión' },
+      de: { dashboard: 'Dashboard', agents: 'Agenten', security: 'Sicherheit', users: 'Benutzer', auditLog: 'Protokoll', commands: 'Befehle', logout: 'Abmelden', connected: 'Verbunden', offline: 'Offline' },
+      fr: { dashboard: 'Tableau de bord', agents: 'Agents', security: 'Sécurité', users: 'Utilisateurs', auditLog: 'Journal', commands: 'Commandes', logout: 'Déconnexion', connected: 'Connecté', offline: 'Hors ligne' }
+    };
+    
+    function getLanguage() {
+      return localStorage.getItem('pingup-language') || navigator.language.split('-')[0] || 'it';
+    }
+    
+    function t(key) {
+      const lang = getLanguage();
+      return translations[lang]?.[key] || translations.en[key] || key;
+    }
+    
+    function setLanguage(lang) {
+      localStorage.setItem('pingup-language', lang);
+      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
+    }
+    window.setLanguage = setLanguage;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
+    });
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -244,6 +272,21 @@ const HTML_HEADER = `
       border-color: rgba(255, 255, 255, 0.2);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
+    /* Focus styles for accessibility */
+    *:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
     .hero-gradient {
       background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.8) 50%, #0f172a 100%);
     }
@@ -274,6 +317,10 @@ const HTML_HEADER = `
   </style>
 </head>
 <body class="gradient-bg text-gray-100 min-h-screen">
+  <!-- DASH-08 Accessibility: Skip navigation link -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-500 focus:text-white focus:rounded-lg">
+    Skip to main content
+  </a>
   <!-- Mobile Header -->
   <header class="mobile-header fixed top-0 left-0 right-0 h-16 bg-gray-900/95 backdrop-blur-xl border-b border-white/5 z-50 px-4 flex items-center justify-between">
     <button id="mobile-menu-btn" class="btn p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white">
@@ -1163,7 +1210,7 @@ function getDashboardLayout(user: { username: string; role: string }) {
       </div>
     </aside>
     
-    <main class="content flex-1 p-4 md:p-6 lg:p-8 relative z-10 pt-20 md:pt-24 lg:pt-8">
+    <main id="main-content" class="content flex-1 p-4 md:p-6 lg:p-8 relative z-10 pt-20 md:pt-24 lg:pt-8">
 `;
 }
 
