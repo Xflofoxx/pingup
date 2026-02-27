@@ -39,11 +39,15 @@ import { realtimeRouter } from "./routes/realtime.ts";
 import { logger } from "./utils/logger.ts";
 import { listAgents } from "./services/agent.ts";
 import { getDeviceCount } from "./db/duckdb.ts";
+import { serveStatic } from "hono/bun";
 
 const app = new Hono();
 
 app.use("*", cors());
 app.use("*", honoLogger());
+
+app.use("/sw.js", serveStatic({ path: "./src/public/sw.js" }));
+app.use("/manifest.json", serveStatic({ path: "./src/public/manifest.json" }));
 
 app.get("/health", (c) => {
   return c.json({ status: "healthy", timestamp: new Date().toISOString() });

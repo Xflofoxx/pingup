@@ -18,6 +18,10 @@ const HTML_HEADER = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pingup - Network Monitoring Dashboard">
+  <meta name="theme-color" content="#3b82f6">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%233b82f6' rx='20' width='100' height='100'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>P</text></svg>">
   <title>Pingup - Network Monitoring</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -675,6 +679,19 @@ const HTML_HEADER = `
     // Connect SSE on dashboard pages
     if (window.location.pathname.startsWith('/dashboard')) {
       connectSSE();
+    }
+    
+    // DASH-10 PWA Support - Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('SW registered:', registration.scope);
+          })
+          .catch(function(error) {
+            console.log('SW registration failed:', error);
+          });
+      });
     }
   </script>
 `;
