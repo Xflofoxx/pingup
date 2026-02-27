@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  pingup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - BIND=0.0.0.0
+      - LOG_LEVEL=info
+      - DEFAULT_TIMEOUT_MS=5000
+      - CHECK_CONCURRENCY=5
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
+      - DATABASE_PATH=/app/data/pingup.db
+    volumes:
+      - pingup-data:/app/server/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  pingup-data:
+    driver: local

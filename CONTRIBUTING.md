@@ -1,32 +1,74 @@
 # Contributing to Pingup
 
-Thank you for your interest in contributing to Pingup!
+Thank you for your interest in contributing to Pingup! This document provides guidelines for contributing to this project.
+
+## Code of Conduct
+
+By participating in this project, you agree to maintain a respectful and inclusive environment for everyone.
 
 ## How to Contribute
 
 ### Reporting Bugs
 
 1. Check if the bug has already been reported
-2. Use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md) to create a new issue
-3. Include as much detail as possible to help us reproduce the bug
+2. Use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md)
+3. Include steps to reproduce, expected behavior, and environment details
 
 ### Suggesting Features
 
-1. Check if the feature has already been requested
-2. Use the [feature request template](.github/ISSUE_TEMPLATE/feature_request.md) to create a new issue
-3. Explain why this feature would be useful
+1. Check the existing issues and discussions
+2. Use the [feature request template](.github/ISSUE_TEMPLATE/feature_request.md)
+3. Provide clear use cases and rationale
 
 ### Pull Requests
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests to ensure everything works
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+#### Branch Naming
 
-## Development Setup
+Use the following conventions:
+
+- `feat/XXX-description` - New features
+- `fix/XXX-description` - Bug fixes
+- `spec/XXX-description` - Feature specifications
+- `test/XXX-description` - Test implementations
+- `hotfix/XXX-description` - Critical production fixes
+
+Where `XXX` is the GitHub issue number.
+
+#### PR Requirements
+
+- All tests must pass
+- Linting must pass with no errors
+- Tests are required for new features
+- Follow the existing code style
+- Update documentation when applicable
+- Use the [PR template](.github/PULL_REQUEST_TEMPLATE.md)
+
+#### Development Workflow
+
+```
+master
+  │
+  ├──> spec/XXX        (Create specification)
+  │       │
+  │       └──> Review & Approve
+  │
+  ├──> feat/XXX        (Implement feature)
+  │       │
+  │       └──> Code Review
+  │
+  ├──> test/XXX        (Write tests)
+  │       │
+  │       └──> Run Tests ──> All Pass?
+  │               │              │
+  │               No             Yes
+  │               │              │
+  │               v              v
+  │         Fix Tests      Merge to master
+  │
+  └──> Delete branch after merge
+```
+
+### Setting Up Development Environment
 
 ```bash
 # Clone the repository
@@ -34,47 +76,94 @@ git clone https://github.com/Xflofoxx/pingup.git
 cd pingup
 
 # Install dependencies
-cd agent && bun install
-cd ../server && bun install
+cd server && bun install
+cd ../agent && bun install
+
+# Run migrations
+cd server && bun run migrate
+
+# Start development server
+bun run dev
 
 # Run tests
+bun test
+
+# Run linter
+bun run lint
+```
+
+### Testing
+
+All new features must include tests. Run tests with:
+
+```bash
+# Server tests
+cd server && bun test
+
+# Agent tests
 cd agent && bun test
-cd ../server && bun test
 
-# Lint
+# With coverage
+cd server && bun run test:coverage
+```
+
+### Linting
+
+The project uses ESLint. Run linting with:
+
+```bash
+# Server
+cd server && bun run lint
+
+# Agent
 cd agent && bun run lint
-cd ../server && bun run lint
+
+# Auto-fix
+cd server && bun run lint:fix
 ```
 
-## Code Style
+### Changelog
 
-- Use TypeScript with strict type checking
-- Follow existing code conventions
-- Run lint before committing
-- Write tests for new features
+When making changes, add entries to the [CHANGELOG.md](CHANGELOG.md) under the `[Unreleased]` section:
 
-## Project Structure
+```markdown
+## [Unreleased]
 
-```
-pingup/
-├── agent/           # Agent component (Bun + Hono)
-├── server/          # Server component (Bun + Hono + SQLite)
-├── libs/            # Shared libraries
-│   ├── ping/      # ICMP ping library
-│   └── scanner/   # Network scanner library
-├── spec/            # Specifications and requirements
-└── data/            # Data directory
+### Added
+- New feature description (#issue)
+
+### Changed
+- Change description (#issue)
+
+### Fixed
+- Bug fix description (#issue)
 ```
 
-## Requirements
+Use the following prefixes:
 
-When adding new features, please:
+- **Added** - New features
+- **Changed** - Existing functionality modifications
+- **Deprecated** - Soon-to-be removed features
+- **Removed** - Removed features
+- **Fixed** - Bug fixes
+- **Security** - Security improvements
 
-1. Add corresponding requirements to `spec/agent/` or `spec/server/`
-2. Update the main specification files
-3. Write tests for the new functionality
-4. Update documentation if needed
+### Commit Messages
+
+Use clear, descriptive commit messages:
+
+- `feat: add new feature`
+- `fix: resolve issue with...`
+- `docs: update documentation`
+- `test: add tests for...`
+- `refactor: simplify...`
+
+### Review Process
+
+1. All PRs require at least one review
+2. Address feedback promptly
+3. Ensure all checks pass before merging
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing to Pingup, you agree that your contributions will be licensed under the [MIT License](LICENSE).

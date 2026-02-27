@@ -73,6 +73,112 @@ bun run start    # Start agent on port 8080
 - Register: http://localhost:7000/register
 - API Docs: http://localhost:7000/api_docs
 
+## Docker
+
+### Using Docker Compose
+
+```bash
+# Clone the repository
+git clone https://github.com/Xflofoxx/pingup.git
+cd pingup
+
+# Start the container
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the container
+docker-compose down
+```
+
+The server will be available at http://localhost:3000
+
+### Using Docker
+
+```bash
+# Build the image
+docker build -t pingup:latest .
+
+# Run the container
+docker run -d \
+  --name pingup \
+  -p 3000:3000 \
+  -v pingup-data:/app/server/data \
+  -e NODE_ENV=production \
+  -e JWT_SECRET=your-secret-key \
+  pingup:latest
+```
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| PORT | 3000 | Server port |
+| NODE_ENV | development | Environment (development/production) |
+| BIND | 0.0.0.0 | Bind address |
+| LOG_LEVEL | info | Logging level |
+| DEFAULT_TIMEOUT_MS | 5000 | Default timeout for checks |
+| CHECK_CONCURRENCY | 5 | Concurrent checks limit |
+| JWT_SECRET | - | Secret key for JWT tokens |
+| DATABASE_PATH | ./data/pingup.db | SQLite database path |
+
+## API
+
+### Health Check
+
+```bash
+curl http://localhost:3000/health
+```
+
+Response:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-27T12:00:00.000Z"
+}
+```
+
+### Detailed Health
+
+```bash
+curl http://localhost:3000/health/detailed
+```
+
+Response:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-27T12:00:00.000Z",
+  "performance": {
+    "totalDevices": 10,
+    "registeredAgents": 5,
+    "onlineAgents": 4,
+    "capacity": "ok"
+  },
+  "targets": {
+    "maxDevices": 10000,
+    "targetLatency": "200ms"
+  }
+}
+```
+
+### Prometheus Metrics
+
+```bash
+curl http://localhost:3000/metrics
+```
+
+### Swagger API Docs
+
+Visit http://localhost:3000/api_docs for interactive API documentation.
+
 ## Configuration
 
 ### Agent (config.yaml)
@@ -404,6 +510,47 @@ Initial release with core monitoring capabilities.
 - Network discovery with port scanning
 
 ---
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting PRs.
+
+### Development Setup
+
+```bash
+# Install dependencies
+cd server && bun install
+cd ../agent && bun install
+
+# Run migrations
+cd server && bun run migrate
+
+# Start development server
+bun run dev
+
+# Run tests
+bun test
+```
+
+### Running Tests
+
+```bash
+# Server tests
+cd server && bun test
+
+# Agent tests
+cd agent && bun test
+```
+
+### Linting
+
+```bash
+# Server
+cd server && bun run lint
+
+# Agent
+cd agent && bun run lint
+```
 
 ## License
 
