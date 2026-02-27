@@ -35,14 +35,19 @@ import { otAssetsRouter } from "./routes/otAssets.ts";
 import { performanceRouter } from "./routes/performance.ts";
 import { ismsRouter } from "./routes/isms.ts";
 import { notificationsRouter, initNotificationsTable } from "./routes/notifications.ts";
+import { realtimeRouter } from "./routes/realtime.ts";
 import { logger } from "./utils/logger.ts";
 import { listAgents } from "./services/agent.ts";
 import { getDeviceCount } from "./db/duckdb.ts";
+import { serveStatic } from "hono/bun";
 
 const app = new Hono();
 
 app.use("*", cors());
 app.use("*", honoLogger());
+
+app.use("/sw.js", serveStatic({ path: "./src/public/sw.js" }));
+app.use("/manifest.json", serveStatic({ path: "./src/public/manifest.json" }));
 
 app.get("/health", (c) => {
   return c.json({ status: "healthy", timestamp: new Date().toISOString() });
@@ -105,6 +110,7 @@ app.route("/api/v1/ot-assets", otAssetsRouter);
 app.route("/api/v1/performance", performanceRouter);
 app.route("/api/v1/isms", ismsRouter);
 app.route("/api/v1/notifications", notificationsRouter);
+app.route("/api/v1/realtime", realtimeRouter);
 app.route("/api_docs", swaggerRouter);
 app.route("/", dashboardRouter);
 
