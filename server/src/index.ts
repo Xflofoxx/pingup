@@ -34,6 +34,7 @@ import { complianceRouter } from "./routes/compliance.ts";
 import { otAssetsRouter } from "./routes/otAssets.ts";
 import { performanceRouter } from "./routes/performance.ts";
 import { ismsRouter } from "./routes/isms.ts";
+import { notificationsRouter, initNotificationsTable } from "./routes/notifications.ts";
 import { logger } from "./utils/logger.ts";
 import { listAgents } from "./services/agent.ts";
 import { getDeviceCount } from "./db/duckdb.ts";
@@ -103,6 +104,7 @@ app.route("/api/v1/compliance", complianceRouter);
 app.route("/api/v1/ot-assets", otAssetsRouter);
 app.route("/api/v1/performance", performanceRouter);
 app.route("/api/v1/isms", ismsRouter);
+app.route("/api/v1/notifications", notificationsRouter);
 app.route("/api_docs", swaggerRouter);
 app.route("/", dashboardRouter);
 
@@ -138,6 +140,8 @@ const serverConfig = loadServerConfig();
 const PORT = serverConfig.port;
 
 logger.info(`Starting Pingup Server on ${serverConfig.host}:${PORT}`);
+
+initNotificationsTable();
 
 export default {
   port: PORT,
