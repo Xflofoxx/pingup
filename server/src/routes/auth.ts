@@ -83,8 +83,18 @@ authRouter.post("/register-password", async (c) => {
 
 authRouter.post("/login-password", async (c) => {
   try {
-    const body = await c.req.json();
-    const { username, password } = body;
+    const contentType = c.req.header("content-type") || "";
+    let username: string, password: string;
+    
+    if (contentType.includes("application/json")) {
+      const body = await c.req.json();
+      username = body.username;
+      password = body.password;
+    } else {
+      const formData = await c.req.parseBody();
+      username = formData.username as string;
+      password = formData.password as string;
+    }
     
     if (!username || !password) {
       return c.json({ error: "Username and password are required" }, 400);
@@ -132,7 +142,7 @@ authRouter.post("/login-password", async (c) => {
     
     setCookie(c, "auth_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "Lax",
       maxAge: 60 * 60 * 24,
       path: "/",
@@ -181,8 +191,18 @@ authRouter.post("/create-test-user", async (c) => {
 
 authRouter.post("/login", async (c) => {
   try {
-    const body = await c.req.json();
-    const { username, code } = body;
+    const contentType = c.req.header("content-type") || "";
+    let username: string, code: string;
+    
+    if (contentType.includes("application/json")) {
+      const body = await c.req.json();
+      username = body.username;
+      code = body.code;
+    } else {
+      const formData = await c.req.parseBody();
+      username = formData.username as string;
+      code = formData.code as string;
+    }
     
     if (!username || !code) {
       return c.json({ error: "Username and code are required" }, 400);
@@ -204,7 +224,7 @@ authRouter.post("/login", async (c) => {
       path: "/",
     });
     
-    return c.json({ user: result.user });
+    return c.redirect("/dashboard");
   } catch (error) {
     return c.json({ error: (error as Error).message }, 401);
   }

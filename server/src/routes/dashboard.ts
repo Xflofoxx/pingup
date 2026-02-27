@@ -414,12 +414,39 @@ function getLoginPage() {
       </div>
 
       <div class="card-glass rounded-2xl p-8">
+        <!-- Tabs -->
+        <div class="flex mb-6 bg-gray-800/50 rounded-xl p-1">
+          <button type="button" id="tabPassword" class="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white transition">
+            <i class="fas fa-lock mr-2"></i>Password
+          </button>
+          <button type="button" id="tabTOTP" class="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition">
+            <i class="fas fa-mobile-alt mr-2"></i>TOTP
+          </button>
+        </div>
+
+        <!-- Password Login -->
+        <div id="passwordSection">
+          <form id="passwordForm" action="/api/v1/auth/login-password" method="POST" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+              <input type="text" name="username" required
+                class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+              <input type="password" name="password" required
+                class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+            </div>
+            <button type="submit"
+              class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl transition">
+              <i class="fas fa-sign-in-alt mr-2"></i>Accedi
+            </button>
+          </form>
+        </div>
+
         <!-- TOTP Login -->
-        <div id="totpSection">
-          <h3 class="text-lg font-semibold text-white mb-4">
-            <i class="fas fa-mobile-alt mr-2 text-blue-400"></i>Accedi con TOTP
-          </h3>
-          <form id="totpForm" class="space-y-4">
+        <div id="totpSection" class="hidden">
+          <form id="totpForm" action="/api/v1/auth/login" method="POST" class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
               <input type="text" name="username" required
@@ -437,41 +464,9 @@ function getLoginPage() {
           </form>
         </div>
 
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-600"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="px-4 bg-gray-800 text-gray-500">oppure</span>
-          </div>
-        </div>
-
-        <!-- Password Login -->
-        <div id="passwordSection">
-          <h3 class="text-lg font-semibold text-white mb-4">
-            <i class="fas fa-lock mr-2 text-purple-400"></i>Accedi con Password
-          </h3>
-          <form id="passwordForm" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Username</label>
-              <input type="text" name="username" required
-                class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
-              <input type="password" name="password" required
-                class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
-            </div>
-            <button type="submit"
-              class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-xl transition">
-              <i class="fas fa-sign-in-alt mr-2"></i>Accedi con Password
-            </button>
-          </form>
-        </div>
-
         <div id="error" class="mt-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm hidden"></div>
 
-<div class="text-center mt-6">
+        <div class="text-center mt-6">
           <a href="/register" class="text-blue-400 hover:text-blue-300 text-sm">
             Non hai un account? <span class="font-semibold">Registrati</span>
           </a>
@@ -485,61 +480,27 @@ function getLoginPage() {
   </div>
 
   <script>
-    document.getElementById('totpForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = new FormData(e.target);
-      const error = document.getElementById('error');
-      error.classList.add('hidden');
+    // Tab switching - simplified
+    document.addEventListener('DOMContentLoaded', function() {
+      var tabPassword = document.getElementById('tabPassword');
+      var tabTOTP = document.getElementById('tabTOTP');
+      var passwordSection = document.getElementById('passwordSection');
+      var totpSection = document.getElementById('totpSection');
       
-      try {
-        const res = await fetch('/api/v1/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            username: form.get('username'),
-            code: form.get('code')
-          })
-        });
+      if (tabPassword && tabTOTP && passwordSection && totpSection) {
+        tabPassword.onclick = function() {
+          tabPassword.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white transition';
+          tabTOTP.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-400 transition';
+          passwordSection.style.display = 'block';
+          totpSection.style.display = 'none';
+        };
         
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Login failed');
-        }
-        
-        window.location.href = '/dashboard';
-      } catch (err) {
-        error.textContent = err.message;
-        error.classList.remove('hidden');
-      }
-    });
-
-    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = new FormData(e.target);
-      const error = document.getElementById('error');
-      error.classList.add('hidden');
-      
-      try {
-        const res = await fetch('/api/v1/auth/login-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            username: form.get('username'),
-            password: form.get('password')
-          })
-        });
-        
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Login failed');
-        }
-        
-        window.location.href = res.url || '/dashboard';
-      } catch (err) {
-        error.textContent = err.message;
-        error.classList.remove('hidden');
+        tabTOTP.onclick = function() {
+          tabTOTP.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white transition';
+          tabPassword.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-400 transition';
+          totpSection.style.display = 'block';
+          passwordSection.style.display = 'none';
+        };
       }
     });
   </script>
@@ -918,7 +879,18 @@ function getPublicStats() {
 
 export const dashboardRouter = new Hono();
 
-dashboardRouter.get("/", (c) => {
+dashboardRouter.get("/", async (c) => {
+  // Check if user is logged in
+  const token = getCookie(c, "auth_token");
+  
+  if (token) {
+    const payload = await verifyToken(token);
+    if (payload) {
+      return c.redirect("/dashboard");
+    }
+  }
+  
+  // Not logged in - show public page
   const stats = getPublicStats();
   
   let html = (HTML_HEADER + PUBLIC_DASHBOARD)
@@ -931,7 +903,17 @@ dashboardRouter.get("/", (c) => {
   return c.html(html);
 });
 
-dashboardRouter.get("/login", (c) => {
+dashboardRouter.get("/login", async (c) => {
+  // Check if user is already logged in
+  const token = getCookie(c, "auth_token");
+  
+  if (token) {
+    const payload = await verifyToken(token);
+    if (payload) {
+      return c.redirect("/dashboard");
+    }
+  }
+  
   return c.html(getLoginPage());
 });
 
@@ -959,6 +941,103 @@ dashboardRouter.get("/dashboard", async (c) => {
   }
   
   return c.html(getDashboardPage({ username: user.username, role: user.role }));
+});
+
+dashboardRouter.get("/dashboard/agents", async (c) => {
+  const token = getCookie(c, "auth_token");
+  
+  if (!token) {
+    return c.redirect("/login");
+  }
+  
+  const payload = await verifyToken(token);
+  
+  if (!payload || !hasRole(payload.role, "IT")) {
+    return c.redirect("/dashboard");
+  }
+  
+  const user = getUserById(payload.sub);
+  const agents = listAgents();
+  
+  return c.html(getAgentsPage({ username: user!.username, role: user!.role }, agents));
+});
+
+dashboardRouter.get("/dashboard/commands", async (c) => {
+  const token = getCookie(c, "auth_token");
+  
+  if (!token) {
+    return c.redirect("/login");
+  }
+  
+  const payload = await verifyToken(token);
+  
+  if (!payload || !hasRole(payload.role, "IT")) {
+    return c.redirect("/dashboard");
+  }
+  
+  const user = getUserById(payload.sub);
+  const db = getDb();
+  const commands = db.prepare("SELECT * FROM commands ORDER BY created_at DESC LIMIT 50").all();
+  
+  return c.html(getCommandsPage({ username: user!.username, role: user!.role }, commands));
+});
+
+dashboardRouter.get("/dashboard/users", async (c) => {
+  const token = getCookie(c, "auth_token");
+  
+  if (!token) {
+    return c.redirect("/login");
+  }
+  
+  const payload = await verifyToken(token);
+  
+  if (!payload || !hasRole(payload.role, "ADM")) {
+    return c.redirect("/dashboard");
+  }
+  
+  const user = getUserById(payload.sub);
+  const users = listUsers();
+  
+  return c.html(getUsersPage({ username: user!.username, role: user!.role }, users));
+});
+
+dashboardRouter.get("/dashboard/audit", async (c) => {
+  const token = getCookie(c, "auth_token");
+  
+  if (!token) {
+    return c.redirect("/login");
+  }
+  
+  const payload = await verifyToken(token);
+  
+  if (!payload || !hasRole(payload.role, "ADM")) {
+    return c.redirect("/dashboard");
+  }
+  
+  const user = getUserById(payload.sub);
+  const db = getDb();
+  const logs = db.prepare("SELECT * FROM audit_log ORDER BY timestamp DESC LIMIT 100").all();
+  
+  return c.html(getAuditPage({ username: user!.username, role: user!.role }, logs));
+});
+
+dashboardRouter.get("/dashboard/security", async (c) => {
+  const token = getCookie(c, "auth_token");
+  
+  if (!token) {
+    return c.redirect("/login");
+  }
+  
+  const payload = await verifyToken(token);
+  
+  if (!payload || !hasRole(payload.role, "SUP")) {
+    return c.redirect("/dashboard");
+  }
+  
+  const user = getUserById(payload.sub);
+  const agents = listAgents();
+  
+  return c.html(getSecurityPage({ username: user!.username, role: user!.role }, agents));
 });
 
 dashboardRouter.get("/logout", async (c) => {
@@ -1134,4 +1213,303 @@ function getResetPasswordPage(username: string, resetToken: string, error?: stri
     });
   </script>
   `;
+}
+
+function getAgentsPage(user: { username: string; role: string }, agents: any[]) {
+  return getDashboardLayout(user) + `
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Agenti</h1>
+          <p class="text-gray-400 mt-1">Gestisci gli agenti di monitoraggio</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="glass-card rounded-3xl p-8">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-white/5">
+              <th class="pb-4 font-medium">ID</th>
+              <th class="pb-4 font-medium">Nome</th>
+              <th class="pb-4 font-medium">Stato</th>
+              <th class="pb-4 font-medium">Ultimo contatto</th>
+              <th class="pb-4 font-medium">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${agents.map(agent => `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="py-4 font-mono text-sm text-blue-400">${agent.id}</td>
+              <td class="py-4 text-white font-medium">${agent.name || '-'}</td>
+              <td class="py-4">
+                <span class="px-3 py-1.5 rounded-full text-xs font-medium ${agent.status === 'online' ? 'bg-green-500/20 text-green-400 border border-green-500/20' : 'bg-gray-500/20 text-gray-400 border border-gray-500/20'}">
+                  <i class="fas fa-circle text-xs mr-1.5 ${agent.status === 'online' ? 'animate-pulse' : ''}"></i>
+                  ${agent.status === 'online' ? 'Online' : 'Offline'}
+                </span>
+              </td>
+              <td class="py-4 text-gray-400 text-sm">${agent.last_seen || 'Mai'}</td>
+              <td class="py-4">
+                <button class="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition text-sm">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            `).join('')}
+            ${agents.length === 0 ? '<tr><td colspan="5" class="py-12 text-center text-gray-500"><i class="fas fa-server text-4xl mb-3 opacity-30"></i><p>Nessun agente registrato</p></td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` + getDashboardFooter();
+}
+
+function getCommandsPage(user: { username: string; role: string }, commands: any[]) {
+  return getDashboardLayout(user) + `
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Comandi</h1>
+          <p class="text-gray-400 mt-1">Cronologia comandi eseguiti</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="glass-card rounded-3xl p-8">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-white/5">
+              <th class="pb-4 font-medium">ID</th>
+              <th class="pb-4 font-medium">Agente</th>
+              <th class="pb-4 font-medium">Azione</th>
+              <th class="pb-4 font-medium">Stato</th>
+              <th class="pb-4 font-medium">Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${commands.map(cmd => `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="py-4 font-mono text-sm text-purple-400">${cmd.id}</td>
+              <td class="py-4 text-white">${cmd.agent_id}</td>
+              <td class="py-4 text-gray-300 font-mono text-sm">${cmd.action}</td>
+              <td class="py-4">
+                <span class="px-3 py-1.5 rounded-full text-xs font-medium ${cmd.status === 'completed' ? 'bg-green-500/20 text-green-400 border border-green-500/20' : cmd.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/20' : 'bg-red-500/20 text-red-400 border border-red-500/20'}">
+                  ${cmd.status}
+                </span>
+              </td>
+              <td class="py-4 text-gray-400 text-sm">${cmd.created_at}</td>
+            </tr>
+            `).join('')}
+            ${commands.length === 0 ? '<tr><td colspan="5" class="py-12 text-center text-gray-500"><i class="fas fa-terminal text-4xl mb-3 opacity-30"></i><p>Nessun comando eseguito</p></td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` + getDashboardFooter();
+}
+
+function getUsersPage(user: { username: string; role: string }, users: any[]) {
+  const roleLabels: Record<string, string> = {
+    ADM: "Amministratore",
+    SUP: "Supervisore",
+    IT: "Operativo IT",
+    PUB: "Pubblico",
+  };
+  
+  const roleColors: Record<string, string> = {
+    ADM: "from-red-500 to-red-600",
+    SUP: "from-purple-500 to-purple-600",
+    IT: "from-blue-500 to-blue-600",
+    PUB: "from-gray-500 to-gray-600",
+  };
+  
+  return getDashboardLayout(user) + `
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Utenti</h1>
+          <p class="text-gray-400 mt-1">Gestisci gli account utente</p>
+        </div>
+        <a href="/register" class="px-6 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold transition">
+          <i class="fas fa-user-plus mr-2"></i>Nuovo Utente
+        </a>
+      </div>
+    </div>
+    
+    <div class="glass-card rounded-3xl p-8">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-white/5">
+              <th class="pb-4 font-medium">Username</th>
+              <th class="pb-4 font-medium">Ruolo</th>
+              <th class="pb-4 font-medium">Stato</th>
+              <th class="pb-4 font-medium">Ultimo accesso</th>
+              <th class="pb-4 font-medium">Azioni</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="py-4 font-medium text-white">${u.username}</td>
+              <td class="py-4">
+                <span class="px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r ${roleColors[u.role]} text-white">
+                  ${roleLabels[u.role]}
+                </span>
+              </td>
+              <td class="py-4">
+                <span class="px-3 py-1.5 rounded-full text-xs font-medium ${u.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/20' : 'bg-red-500/20 text-red-400 border border-red-500/20'}">
+                  ${u.status}
+                </span>
+              </td>
+              <td class="py-4 text-gray-400 text-sm">${u.last_login || 'Mai'}</td>
+              <td class="py-4">
+                <div class="flex gap-2">
+                  <button class="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition text-sm">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` + getDashboardFooter();
+}
+
+function getAuditPage(user: { username: string; role: string }, logs: any[]) {
+  return getDashboardLayout(user) + `
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Audit Log</h1>
+          <p class="text-gray-400 mt-1">Registro attività di sistema</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="glass-card rounded-3xl p-8">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-white/5">
+              <th class="pb-4 font-medium">Timestamp</th>
+              <th class="pb-4 font-medium">Utente</th>
+              <th class="pb-4 font-medium">Azione</th>
+              <th class="pb-4 font-medium">Dettagli</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logs.map(log => `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="py-4 text-gray-400 text-sm font-mono">${log.timestamp}</td>
+              <td class="py-4 text-white">${log.user_id || '-'}</td>
+              <td class="py-4">
+                <span class="px-3 py-1.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/20">
+                  ${log.action}
+                </span>
+              </td>
+              <td class="py-4 text-gray-300 text-sm">${log.details || '-'}</td>
+            </tr>
+            `).join('')}
+            ${logs.length === 0 ? '<tr><td colspan="4" class="py-12 text-center text-gray-500"><i class="fas fa-clipboard-list text-4xl mb-3 opacity-30"></i><p>Nessun log disponibile</p></td></tr>' : ''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` + getDashboardFooter();
+}
+
+function getSecurityPage(user: { username: string; role: string }, agents: any[]) {
+  const onlineCount = agents.filter(a => a.status === "online").length;
+  const offlineCount = agents.filter(a => a.status !== "online").length;
+  
+  return getDashboardLayout(user) + `
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Sicurezza</h1>
+          <p class="text-gray-400 mt-1">Panoramica sicurezza sistema</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="glass-card rounded-3xl p-6 glow-green">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/30 to-emerald-500/30 flex items-center justify-center border border-green-500/20">
+            <i class="fas fa-shield-alt text-green-400 text-2xl"></i>
+          </div>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Agenti Sicuri</p>
+        <p class="text-4xl font-bold text-green-400 mt-1">${onlineCount}</p>
+      </div>
+      
+      <div class="glass-card rounded-3xl p-6 glow-red">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/30 to-orange-500/30 flex items-center justify-center border border-red-500/20">
+            <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+          </div>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Agenti Offline</p>
+        <p class="text-4xl font-bold text-red-400 mt-1">${offlineCount}</p>
+      </div>
+      
+      <div class="glass-card rounded-3xl p-6 glow-blue">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/30 to-cyan-500/30 flex items-center justify-center border border-blue-500/20">
+            <i class="fas fa-history text-blue-400 text-2xl"></i>
+          </div>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Totale Agenti</p>
+        <p class="text-4xl font-bold text-white mt-1">${agents.length}</p>
+      </div>
+    </div>
+    
+    <div class="glass-card rounded-3xl p-8">
+      <h2 class="text-xl font-semibold text-white mb-6">
+        <i class="fas fa-server text-blue-400 mr-3"></i>Stato Agenti
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-white/5">
+              <th class="pb-4 font-medium">Agente</th>
+              <th class="pb-4 font-medium">Stato</th>
+              <th class="pb-4 font-medium">Ultimo contatto</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${agents.map(agent => `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="py-4 font-mono text-sm text-blue-400">${agent.id}</td>
+              <td class="py-4">
+                <span class="px-3 py-1.5 rounded-full text-xs font-medium ${agent.status === 'online' ? 'bg-green-500/20 text-green-400 border border-green-500/20' : 'bg-red-500/20 text-red-400 border border-red-500/20'}">
+                  ${agent.status}
+                </span>
+              </td>
+              <td class="py-4 text-gray-400 text-sm">${agent.last_seen || 'Mai'}</td>
+            </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` + getDashboardFooter();
+}
+
+function getDashboardFooter() {
+  return `
+    </main>
+  </div>
+</body>
+</html>
+`;
 }
