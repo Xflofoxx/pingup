@@ -1994,6 +1994,8 @@ function getDashboardFooter() {
   return `
     </main>
   </div>
+  <script src="/dashboard.js"></script>
+  <script src="/dashboard-features.js"></script>
 </body>
 </html>
 `;

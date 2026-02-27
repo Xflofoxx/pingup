@@ -48,6 +48,8 @@ app.use("*", honoLogger());
 
 app.use("/sw.js", serveStatic({ path: "./src/public/sw.js" }));
 app.use("/manifest.json", serveStatic({ path: "./src/public/manifest.json" }));
+app.use("/dashboard.js", serveStatic({ path: "./src/public/dashboard.js" }));
+app.use("/dashboard-features.js", serveStatic({ path: "./src/public/dashboard-features.js" }));
 
 app.get("/health", (c) => {
   return c.json({ status: "healthy", timestamp: new Date().toISOString() });
