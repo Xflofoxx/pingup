@@ -495,6 +495,7 @@ function getLoginPage() {
         const res = await fetch('/api/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             username: form.get('username'),
             code: form.get('code')
@@ -523,6 +524,7 @@ function getLoginPage() {
         const res = await fetch('/api/v1/auth/login-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             username: form.get('username'),
             password: form.get('password')
@@ -534,7 +536,7 @@ function getLoginPage() {
           throw new Error(data.error || 'Login failed');
         }
         
-        window.location.href = '/dashboard';
+        window.location.href = res.url || '/dashboard';
       } catch (err) {
         error.textContent = err.message;
         error.classList.remove('hidden');

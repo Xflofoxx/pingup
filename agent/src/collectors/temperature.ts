@@ -8,7 +8,7 @@ export interface TemperatureData {
   timestamp: string;
 }
 
-export function collectTemperature(unit: "celsius" | "fahrenheit" = "celsius"): TemperatureData {
+export async function collectTemperature(unit: "celsius" | "fahrenheit" = "celsius"): Promise<TemperatureData> {
   const temps: TemperatureData = {
     cpu: null,
     gpu: null,
@@ -58,23 +58,26 @@ export function collectTemperature(unit: "celsius" | "fahrenheit" = "celsius"): 
     } catch {}
   }
 
-  if (Bun.which("wmic")) {
+  if (process.platform === "win32") {
     try {
-      const wmicProc = Bun.spawn(["wmic", "temperature", "get", "CurrentTemp"]);
-      const wmicOutput = new Response(wmicProc.stdout).text();
-      const tempMatch = wmicOutput.match(/(\d+)/);
-      if (tempMatch) {
-        temps.cpu = (parseInt(tempMatch[1]) - 2732) / 10;
+      const proc = Bun.spawn([
+        "powershell", "-Command",
+        "Get-CimInstance -ClassName Win32_TemperatureProbe | Select-Object -First 1 -ExpandProperty CurrentReading | ForEach-Object { [math]::Round(($_ - 2732) / 10, 1) }"
+      ]);
+      const output = await new Response(proc.stdout).text();
+      const temp = parseFloat(output.trim());
+      if (!isNaN(temp)) {
+        temps.cpu = unit === "fahrenheit" ? (temp * 9) / 5 + 32 : temp;
       }
     } catch {}
   }
 
-  if (temps.cpu === null) {
+  if (process.platform !== "win32" && temps.cpu === null) {
     try {
       const thermalDirs = ["/sys/class/thermal/thermal_zone0/temp", "/proc/acpi/thermal"];
       for (const dir of thermalDirs) {
         try {
-          const content = Bun.file(dir).text();
+          const content = await Bun.file(dir).text();
           const temp = parseInt(content.trim()) / 1000;
           if (temp > 0 && temp < 150) {
             temps.cpu = temp;

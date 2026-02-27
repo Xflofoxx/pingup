@@ -12,7 +12,8 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write src/"
   },
-  "dependencies": {
+"dependencies": {
+    "@msgpack/msgpack": "^3.1.0",
     "hono": "^4.0.0",
     "jose": "^5.2.0",
     "yaml": "^2.3.4"

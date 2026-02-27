@@ -1,5 +1,6 @@
-import { createUser, getUserByUsername, getUserById, updateLastLogin, createSession, deleteSession, getSession, logAudit, hashPassword, verifyPassword } from "../services/users.ts";
+import { createUser, getUserByUsername, getUserById, updateLastLogin, createSession, deleteSession, getSession, logAudit, hashPassword, verifyPassword, hasRole } from "../services/users.ts";
 export { SignJWT, jwtVerify } from "jose";
+export { hasRole };
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "pingup-secret-key-change-in-production");
 

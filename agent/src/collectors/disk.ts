@@ -30,34 +30,48 @@ function parseDfLine(line: string): { device: string; mountpoint: string; total:
   return { device, mountpoint, total, used, free, percent };
 }
 
-function getWindowsDiskMetrics(): Array<{ device: string; mountpoint: string; total: number; used: number; free: number; percent: number }> {
-  const results: Array<{ device: string; mountpoint: string; total: number; used: number; free: number; percent: number }> = [];
-  const letters = "CDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  
-  for (const letter of letters) {
-    const drive = `${letter}:\\`;
+async function getWindowsDiskMetrics(): Promise<Array<{ device: string; mountpoint: string; total: number; used: number; free: number; percent: number }>> {
+  try {
+    const proc = Bun.spawn([
+      "powershell", "-Command",
+      "Get-CimInstance -ClassName Win32_LogicalDisk | Select-Object DeviceID,Size,FreeSpace | ConvertTo-Json"
+    ]);
+    const output = await new Response(proc.stdout).text();
+    
+    if (!output.trim()) {
+      return [];
+    }
+    
+    let disks: any[] = [];
     try {
-      const proc = Bun.spawn(["wmic", "logicaldisk", "where", `DeviceID='${drive}'`, "get", "Size,FreeSpace"]);
-      const output = new Response(proc.stdout).text();
-      const lines = output.trim().split("\n").filter(l => l.trim());
-      
-      if (lines.length >= 2) {
-        const values = lines[1].trim().split(/\s+/);
-        if (values.length >= 2) {
-          const free = parseInt(values[0]) || 0;
-          const total = parseInt(values[1]) || 0;
-          const used = total - free;
-          const percent = total > 0 ? Math.round((used / total) * 100) : 0;
-          
-          results.push({ device: drive, mountpoint: drive, total, used, free, percent });
-        }
+      disks = JSON.parse(output);
+      if (!Array.isArray(disks)) {
+        disks = [disks];
       }
     } catch {
-      // Drive not available
+      return [];
     }
+    
+    return disks
+      .filter(d => d.DeviceID)
+      .map(d => {
+        const total = parseInt(d.Size) || 0;
+        const free = parseInt(d.FreeSpace) || 0;
+        const used = total - free;
+        const percent = total > 0 ? Math.round((used / total) * 100) : 0;
+        
+        return {
+          device: d.DeviceID,
+          mountpoint: d.DeviceID,
+          total,
+          used,
+          free,
+          percent,
+        };
+      });
+  } catch {
+    return [];
   }
-  
-  return results;
 }
 
 function getLinuxDiskMetrics(): Array<{ device: string; mountpoint: string; total: number; used: number; free: number; percent: number }> {
@@ -83,7 +97,7 @@ function getLinuxDiskMetrics(): Array<{ device: string; mountpoint: string; tota
 
 export async function collectDisk(): Promise<DiskMetrics> {
   const isWindows = process.platform === "win32";
-  const diskData = isWindows ? getWindowsDiskMetrics() : getLinuxDiskMetrics();
+  const diskData = isWindows ? await getWindowsDiskMetrics() : getLinuxDiskMetrics();
   
   const partitions: DiskMetrics["partitions"] = diskData.map(d => ({
     device: d.device,

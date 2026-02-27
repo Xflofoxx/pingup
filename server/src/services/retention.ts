@@ -84,7 +84,7 @@ export function updateRetentionPolicy(id: string, updates: Partial<RetentionPoli
   return result.changes > 0;
 }
 
-export function applyRetentionPolicies(): { deleted: Record<string, number> } => {
+export function applyRetentionPolicies(): { deleted: Record<string, number> } {
   const db = getDb();
   const policies = listRetentionPolicies().filter(p => p.enabled);
   

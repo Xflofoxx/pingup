@@ -15,10 +15,12 @@ export interface GPUMetrics {
 }
 
 export async function collectGPU(): Promise<GPUMetrics> {
-  const nvidia = await collectNvidiaGPU();
-  if (nvidia.available) return nvidia;
+  const [nvidia, amd] = await Promise.all([
+    collectNvidiaGPU(),
+    collectAmdGPU()
+  ]);
   
-  const amd = await collectAmdGPU();
+  if (nvidia.available) return nvidia;
   if (amd.available) return amd;
   
   return {

@@ -56,8 +56,12 @@ export async function collectContainers(): Promise<ContainerMetrics> {
     let totalCpu = 0;
     let totalMemory = 0;
     
-    for (const c of containers) {
-      const stats = await getContainerStats(c.ID || c.Id || c.ID || "");
+    const statsPromises = containers.map(c => getContainerStats(c.ID || c.Id || c.ID || ""));
+    const statsResults = await Promise.all(statsPromises);
+    
+    for (let i = 0; i < containers.length; i++) {
+      const c = containers[i];
+      const stats = statsResults[i];
       
       containerInfos.push({
         id: c.ID || c.Id || c.ID || "",
