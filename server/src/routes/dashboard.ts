@@ -21,46 +21,8 @@ const HTML_HEADER = `
   <meta name="description" content="Pingup - Network Monitoring Dashboard">
   <meta name="theme-color" content="#3b82f6">
   <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%233b82f6' rx='20' width='100' height='100'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>P</text></svg>">
   <title>Pingup - Network Monitoring</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Theme management
-    (function() {
-      const savedTheme = localStorage.getItem('pingup-theme');
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    })();
-    
-    // DASH-07 Internationalization
-    const translations = {
-      en: { dashboard: 'Dashboard', agents: 'Agents', security: 'Security', users: 'Users', auditLog: 'Audit Log', commands: 'Commands', logout: 'Logout', connected: 'Connected', offline: 'Offline' },
-      it: { dashboard: 'Dashboard', agents: 'Agenti', security: 'Sicurezza', users: 'Utenti', auditLog: 'Audit Log', commands: 'Comandi', logout: 'Logout', connected: 'Connesso', offline: 'Offline' },
-      es: { dashboard: 'Panel', agents: 'Agentes', security: 'Seguridad', users: 'Usuarios', auditLog: 'Registro', commands: 'Comandos', logout: 'Cerrar', connected: 'Conectado', offline: 'Sin conexión' },
-      de: { dashboard: 'Dashboard', agents: 'Agenten', security: 'Sicherheit', users: 'Benutzer', auditLog: 'Protokoll', commands: 'Befehle', logout: 'Abmelden', connected: 'Verbunden', offline: 'Offline' },
-      fr: { dashboard: 'Tableau de bord', agents: 'Agents', security: 'Sécurité', users: 'Utilisateurs', auditLog: 'Journal', commands: 'Commandes', logout: 'Déconnexion', connected: 'Connecté', offline: 'Hors ligne' }
-    };
-    
-    function getLanguage() {
-      return localStorage.getItem('pingup-language') || navigator.language.split('-')[0] || 'it';
-    }
-    
-    function t(key) {
-      const lang = getLanguage();
-      return translations[lang]?.[key] || translations.en[key] || key;
-    }
-    
-    function setLanguage(lang) {
-      localStorage.setItem('pingup-language', lang);
-      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
-    }
-    window.setLanguage = setLanguage;
-    
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
-    });
-  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -441,65 +403,6 @@ const HTML_HEADER = `
       if (e.key === 'g') pendingKey = 'g';
       else pendingKey = '';
     });
-    
-    function showShortcutsHelp() {
-      const existing = document.getElementById('shortcuts-modal');
-      if (existing) existing.remove();
-      
-      const modal = document.createElement('div');
-      modal.id = 'shortcuts-modal';
-      modal.className = 'fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4';
-      modal.innerHTML = `
-        <div class="glass-card rounded-2xl p-6 max-w-md w-full">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-white"><i class="fas fa-keyboard mr-2"></i>Keyboard Shortcuts</h3>
-            <button onclick="closeModal()" class="btn p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div class="space-y-2">
-            <div class="flex justify-between py-2 border-b border-white/5">
-              <span class="text-gray-400">Show shortcuts help</span>
-              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">?</kbd>
-            </div>
-            <div class="flex justify-between py-2 border-b border-white/5">
-              <span class="text-gray-400">Search</span>
-              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">/</kbd>
-            </div>
-            <div class="flex justify-between py-2 border-b border-white/5">
-              <span class="text-gray-400">Go to Dashboard</span>
-              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g d</kbd>
-            </div>
-            <div class="flex justify-between py-2 border-b border-white/5">
-              <span class="text-gray-400">Go to Agents</span>
-              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g a</kbd>
-            </div>
-            <div class="flex justify-between py-2 border-b border-white/5">
-              <span class="text-gray-400">Go to Settings</span>
-              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g s</kbd>
-            </div>
-            <div class="flex justify-between py-2 border-b border-white/5">
-              <span class="text-gray-400">Refresh page</span>
-              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">e</kbd>
-            </div>
-            <div class="flex justify-between py-2">
-              <span class="text-gray-400">Close modal</span>
-              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">Esc</kbd>
-            </div>
-          </div>
-        </div>
-      `;
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) closeModal();
-      });
-      document.body.appendChild(modal);
-    }
-    
-    function closeModal() {
-      const modal = document.getElementById('shortcuts-modal');
-      if (modal) modal.remove();
-    }
-    window.closeModal = closeModal;
     
     // DASH-04 Offline Support
     const CACHE_KEY = 'pingup_cache';
