@@ -120,6 +120,9 @@ const HTML_HEADER = `
       .desktop-header { display: none; }
       .hide-mobile { display: none !important; }
       .bottom-nav { display: flex; }
+      .mobile-content { 
+        padding-bottom: 80px; /* Space for bottom nav */
+      }
       .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
     }
@@ -1200,7 +1203,7 @@ function getDashboardLayout(user: { username: string; role: string }) {
       </div>
     </aside>
     
-    <main id="main-content" class="content flex-1 p-4 md:p-6 lg:p-8 relative z-10 pt-20 md:pt-24 lg:pt-8">
+    <main id="main-content" class="content flex-1 p-4 md:p-6 lg:p-8 relative z-10 pt-16 pb-24 md:pt-20 lg:pt-8 lg:pb-8">
 `;
 }
 

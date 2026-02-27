@@ -54,7 +54,8 @@ updateOnlineStatus();
 if (!document.getElementById('online-indicator')) {
   const indicator = document.createElement('div');
   indicator.id = 'online-indicator';
-  indicator.className = 'hidden fixed top-16 left-0 right-0 bg-yellow-500/90 text-yellow-900 text-center py-2 text-sm z-40';
+  indicator.className = 'hidden fixed left-0 right-0 bg-yellow-500/90 text-yellow-900 text-center py-2 text-sm z-40 mt-16';
+  indicator.style.top = '64px';
   document.body.insertBefore(indicator, document.body.firstChild);
 }
 
