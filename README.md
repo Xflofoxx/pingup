@@ -1,7 +1,7 @@
 # Pingup
 
 > Lightweight network monitoring agent and server with ICMP ping and network scanning capabilities.
-> **Version**: 1.7.0
+> **Version**: 1.8.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bun](https://img.shields.io/badge/Bun-1.1+-red.svg)](https://bun.sh)
@@ -17,6 +17,7 @@ Pingup is a lightweight monitoring solution that collects system metrics from re
 - **Network Scanner**: Discover devices on local networks with port scanning
 - **Network Discovery**: ARP, NetBIOS, mDNS, UPnP/SSDP, LLDP/CDP, DHCP leases
 - **Remote Commands**: Execute commands on agents from the server
+- **Binary Protocol**: MessagePack encoding for optimized data transmission
 - **Dashboard**: Modern web-based UI with role-based access control
 - **Agent Dashboard**: Local dashboard with owner-based access control
 - **Authentication**: TOTP and password-based login, LDAP/AD integration
@@ -130,7 +131,18 @@ discovery:
 
 ## API Endpoints
 
-### Server (Port 7000)
+### Server Binary Protocol (Recommended)
+
+Pingup uses MessagePack binary encoding for optimal data transmission. The binary protocol reduces payload size by 40-60% compared to JSON.
+
+| Endpoint | Method | Content-Type | Description |
+|----------|--------|--------------|-------------|
+| `/api/v1/metrics/bin` | POST | application/msgpack | Submit metrics (binary) |
+| `/api/v1/commands/bin/:agentId` | GET | application/msgpack | Get pending commands (binary) |
+| `/api/v1/commands/bin/:id/result` | POST | application/msgpack | Submit command result (binary) |
+| `/api/v1/config/bin/:agentId` | GET | application/msgpack | Get agent config (binary) |
+
+### Server REST API (JSON)
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -199,16 +211,19 @@ pingup/
 │   ├── src/
 │   │   ├── collectors/   # Metrics collectors
 │   │   ├── discovery/    # Network scanner
-│   │   └── transport/    # Server communication
+│   │   └── transport/    # Server communication (binary protocol)
 │   └── tests/
 ├── server/                # Server component
 │   ├── src/
-│   │   ├── routes/       # API endpoints
+│   │   ├── routes/       # API endpoints (JSON + Binary)
 │   │   ├── services/     # Business logic
 │   │   ├── middleware/   # Auth middleware
 │   │   └── db/          # Database
 │   └── tests/
 ├── libs/                  # Shared libraries
+│   ├── binary-protocol/  # MessagePack binary protocol
+│   ├── ping/             # ICMP ping library
+│   └── scanner/         # Network scanner library
 ├── spec/                 # Specifications
 └── data/                # Data directory
 ```
@@ -262,6 +277,20 @@ bun libs/scanner/src/cli.ts 192.168.1.0/24 -p 22,80,443 --json
 - [ROADMAP.md](spec/ROADMAP.md) - Project roadmap
 
 ## Release Notes
+
+### Version 1.8.0 - Binary Protocol
+**Release Date**: February 2026
+
+Optimized agent-server communication with binary protocol.
+
+**Features:**
+- Binary Protocol (SERV-043): MessagePack encoding for 40-60% payload reduction
+- Automatic fallback to JSON for backward compatibility
+- CRC32 checksum for data integrity
+- Gzip compression for large payloads
+- Dual-mode API endpoints (/bin suffix)
+
+---
 
 ### Version 1.7.0 - Additional Features & IT/OT
 **Release Date**: February 2026
