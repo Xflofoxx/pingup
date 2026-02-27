@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { registerUser, loginUser, verifyToken, logoutUser, SignJWT } from "../services/auth.ts";
-import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword, getUserByUsername, logAudit, createUser } from "../services/users.ts";
+import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword, getUserByUsername, logAudit, createUser, updateLastLogin, createSession } from "../services/users.ts";
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "pingup-secret-key-change-in-production");
 
@@ -18,6 +18,13 @@ function setCookie(c: any, name: string, value: string, options?: any): void {
 function deleteCookie(c: any, name: string): void {
   c.header("Set-Cookie", `${name}=; Path=/; HttpOnly; Max-Age=0`);
 }
+
+function isLocalhost(c: any): boolean {
+  const host = c.req.header("host") || c.req.raw.headers.get("host");
+  return host === "localhost:3000" || host === "127.0.0.1:3000" || host === "localhost" || host === "127.0.0.1";
+}
+
+const LOCALHOST_ONLY_USERS = ["test", "admin"];
 
 export const authRouter = new Hono();
 
@@ -83,6 +90,10 @@ authRouter.post("/login-password", async (c) => {
       return c.json({ error: "Username and password are required" }, 400);
     }
     
+    if (LOCALHOST_ONLY_USERS.includes(username.toLowerCase()) && !isLocalhost(c)) {
+      return c.json({ error: "This user can only be accessed from localhost" }, 403);
+    }
+    
     const user = getUserByUsername(username);
     
     if (!user) {
@@ -122,12 +133,47 @@ authRouter.post("/login-password", async (c) => {
     setCookie(c, "auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: "Lax",
       maxAge: 60 * 60 * 24,
       path: "/",
     });
     
-    return c.json({ user: { id: user.id, username: user.username, role: user.role } });
+    return c.redirect("/dashboard");
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 400);
+  }
+});
+
+authRouter.post("/create-test-user", async (c) => {
+  if (!isLocalhost(c)) {
+    return c.json({ error: "This endpoint can only be accessed from localhost" }, 403);
+  }
+  
+  try {
+    const body = await c.req.json();
+    const { username, password, role } = body;
+    
+    const testUsername = username || "test";
+    const testPassword = password || "test123";
+    const testRole = role || "ADM";
+    
+    const existing = getUserByUsername(testUsername);
+    if (existing) {
+      return c.json({ error: "Test user already exists", username: testUsername }, 400);
+    }
+    
+    const passwordHash = hashPassword(testPassword);
+    const user = createUser(testUsername, testRole, undefined, passwordHash);
+    
+    logAudit(user.id, "test_user_created", "user", `Test user created: ${testUsername}`);
+    
+    return c.json({
+      success: true,
+      username: testUsername,
+      password: testPassword,
+      role: testRole,
+      message: "Test user created. This user can only login from localhost/127.0.0.1"
+    });
   } catch (error) {
     return c.json({ error: (error as Error).message }, 500);
   }
@@ -142,14 +188,18 @@ authRouter.post("/login", async (c) => {
       return c.json({ error: "Username and code are required" }, 400);
     }
     
-const ipAddress = c.req.header("X-Forwarded-For") || c.req.header("CF-Connecting-IP") || "unknown";
+    if (LOCALHOST_ONLY_USERS.includes(username.toLowerCase()) && !isLocalhost(c)) {
+      return c.json({ error: "This user can only be accessed from localhost" }, 403);
+    }
+    
+    const ipAddress = c.req.header("X-Forwarded-For") || c.req.header("CF-Connecting-IP") || "unknown";
     
     const result = await loginUser(username, code, ipAddress);
     
     setCookie(c, "auth_token", result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: "Lax",
       maxAge: 60 * 60 * 24,
       path: "/",
     });

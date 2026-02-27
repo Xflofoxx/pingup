@@ -1,0 +1,15 @@
+{
+  "name": "@pingup/binary-protocol",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^3.1.0"
+  },
+  "devDependencies": {
+    "bun-types": "^1.1.0"
+  }
+}

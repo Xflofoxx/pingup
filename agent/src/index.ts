@@ -64,50 +64,76 @@ async function collectAllMetrics(config: ReturnType<typeof getConfig>): Promise<
   const tempUnit = config.temperature_unit || "celsius";
   const metrics: Record<string, unknown> = {};
   
+  const tasks: Promise<void>[] = [];
+  
   if (config.modules.includes("cpu")) {
-    metrics.cpu = collectCPU();
-    metrics.cpu.latency = await measureLatency(config.ping.host, config.ping.timeout);
+    tasks.push((async () => {
+      metrics.cpu = collectCPU();
+      metrics.cpu = { ...metrics.cpu as object, latency: await measureLatency(config.ping.host, config.ping.timeout) };
+    })());
   }
   
   if (config.modules.includes("ram")) {
-    metrics.ram = collectRAM();
+    tasks.push((async () => {
+      metrics.ram = collectRAM();
+    })());
   }
   
   if (config.modules.includes("disk")) {
-    metrics.disk = await collectDisk();
+    tasks.push((async () => {
+      metrics.disk = await collectDisk();
+    })());
   }
   
   if (config.modules.includes("network")) {
-    metrics.network = await collectNetwork();
+    tasks.push((async () => {
+      metrics.network = await collectNetwork();
+    })());
   }
 
   if (config.modules.includes("temperature")) {
-    metrics.temperature = collectTemperature(tempUnit);
+    tasks.push((async () => {
+      metrics.temperature = await collectTemperature(tempUnit);
+    })());
   }
   
   if (config.modules.includes("battery")) {
-    metrics.battery = collectBattery();
+    tasks.push((async () => {
+      metrics.battery = collectBattery();
+    })());
   }
   
   if (config.modules.includes("vpn")) {
-    metrics.vpn = detectVPN();
+    tasks.push((async () => {
+      metrics.vpn = detectVPN();
+    })());
   }
   
   if (config.modules.includes("containers")) {
-    metrics.containers = await collectContainers();
+    tasks.push((async () => {
+      metrics.containers = await collectContainers();
+    })());
   }
   
   if (config.modules.includes("gpu")) {
-    metrics.gpu = await collectGPU();
+    tasks.push((async () => {
+      metrics.gpu = await collectGPU();
+    })());
   }
   
   if (config.modules.includes("wifi")) {
-    metrics.wifi = await collectWiFi();
+    tasks.push((async () => {
+      metrics.wifi = await collectWiFi();
+    })());
   }
   
   if (config.custom_scripts && config.custom_scripts.length > 0) {
-    metrics.customScripts = await runCustomScripts(config.custom_scripts);
+    tasks.push((async () => {
+      metrics.customScripts = await runCustomScripts(config.custom_scripts);
+    })());
   }
+  
+  await Promise.all(tasks);
   
   return metrics;
 }
@@ -134,7 +160,12 @@ app.get("/status", (c) => {
 
 app.get("/metrics", async (c) => {
   const config = getConfig();
+  const cached = getCachedMetrics(config);
+  if (cached) {
+    return c.json(cached);
+  }
   const metrics = await collectAllMetrics(config);
+  setCachedMetrics(metrics);
   return c.json(metrics);
 });
 
@@ -568,6 +599,21 @@ app.get("/dashboard", (c) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 let latestMetrics: Record<string, unknown> = {};
 
+let metricsCache: { data: Record<string, unknown>; timestamp: number } | null = null;
+const METRICS_CACHE_TTL = 5000; // 5 seconds cache for dashboard
+
+function getCachedMetrics(config: ReturnType<typeof getConfig>): Record<string, unknown> {
+  const now = Date.now();
+  if (metricsCache && now - metricsCache.timestamp < METRICS_CACHE_TTL) {
+    return metricsCache.data;
+  }
+  return null;
+}
+
+function setCachedMetrics(data: Record<string, unknown>) {
+  metricsCache = { data, timestamp: Date.now() };
+}
+
 async function main() {
   const configPath = process.argv[2] || "config.yaml";
   loadConfig(configPath);
@@ -583,6 +629,7 @@ async function main() {
     try {
       const metrics = await collectAllMetrics(config);
       latestMetrics = metrics;
+      setCachedMetrics(metrics);
       
 const payload = {
         agentId: config.agent_id,

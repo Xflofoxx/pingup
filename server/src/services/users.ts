@@ -49,11 +49,7 @@ function simpleHash(password: string, salt: string): string {
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash;
   }
-  let result = hash.toString(16);
-  for (let i = 0; i < 10; i++) {
-    result += result.charAt(Math.floor(Math.random() * result.length));
-  }
-  return result;
+  return hash.toString(16);
 }
 
 export function hashPassword(password: string): string {
