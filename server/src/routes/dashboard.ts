@@ -352,8 +352,184 @@ const HTML_HEADER = `
       // Close mobile menu on Escape
       if (e.key === 'Escape') {
         closeMobileMenu();
+        closeModal();
+      }
+      
+      // Ignore if typing in input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      // DASH-05 Keyboard Shortcuts
+      if (e.key === '?') {
+        e.preventDefault();
+        showShortcutsHelp();
+      }
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[type="search"], input[name="search"]');
+        if (searchInput) (searchInput as HTMLInputElement).focus();
+      }
+      if (e.key === 'g') {
+        // g+d = Dashboard, g+a = Agents, g+s = Settings
+        setTimeout(() => {
+          if (pendingKey === 'g') {
+            const nextKey = prompt('Go to: d=Dashboard, a=Agents, s=Settings');
+            if (nextKey === 'd') window.location.href = '/dashboard';
+            if (nextKey === 'a') window.location.href = '/dashboard/agents';
+            if (nextKey === 's') window.location.href = '/dashboard/security';
+          }
+        }, 500);
+      }
+      if (e.key === 'e' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        window.location.reload();
       }
     });
+    
+    let pendingKey = '';
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'g') pendingKey = 'g';
+      else pendingKey = '';
+    });
+    
+    function showShortcutsHelp() {
+      const existing = document.getElementById('shortcuts-modal');
+      if (existing) existing.remove();
+      
+      const modal = document.createElement('div');
+      modal.id = 'shortcuts-modal';
+      modal.className = 'fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4';
+      modal.innerHTML = `
+        <div class="glass-card rounded-2xl p-6 max-w-md w-full">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-white"><i class="fas fa-keyboard mr-2"></i>Keyboard Shortcuts</h3>
+            <button onclick="closeModal()" class="btn p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Show shortcuts help</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">?</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Search</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">/</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Go to Dashboard</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g d</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Go to Agents</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g a</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Go to Settings</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g s</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Refresh page</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">e</kbd>
+            </div>
+            <div class="flex justify-between py-2">
+              <span class="text-gray-400">Close modal</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">Esc</kbd>
+            </div>
+          </div>
+        </div>
+      `;
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+      });
+      document.body.appendChild(modal);
+    }
+    
+    function closeModal() {
+      const modal = document.getElementById('shortcuts-modal');
+      if (modal) modal.remove();
+    }
+    window.closeModal = closeModal;
+    
+    // DASH-04 Offline Support
+    const CACHE_KEY = 'pingup_cache';
+    const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
+    
+    function isOnline() {
+      return navigator.onLine;
+    }
+    
+    function getCachedData() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+        
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp > CACHE_EXPIRY) {
+          localStorage.removeItem(CACHE_KEY);
+          return null;
+        }
+        return data;
+      } catch {
+        return null;
+      }
+    }
+    
+    function setCachedData(data: any) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data,
+          timestamp: Date.now()
+        }));
+      } catch {
+        // Ignore storage errors
+      }
+    }
+    
+    function updateOnlineStatus() {
+      const indicator = document.getElementById('online-indicator');
+      const statusBadge = document.getElementById('connection-status');
+      
+      if (!isOnline()) {
+        // Show offline indicator
+        if (indicator) {
+          indicator.classList.remove('hidden');
+          indicator.innerHTML = '<i class="fas fa-wifi mr-2"></i>Offline - dati potrebbero non essere aggiornati';
+        }
+        if (statusBadge) {
+          statusBadge.className = 'px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-400 text-sm font-medium border border-yellow-500/20';
+          statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle text-xs mr-2"></i>Offline';
+        }
+        
+        // Load cached data
+        const cached = getCachedData();
+        if (cached) {
+          console.log('Loaded data from cache');
+        }
+      } else {
+        // Online
+        if (indicator) indicator.classList.add('hidden');
+        if (statusBadge) {
+          statusBadge.className = 'px-4 py-2 rounded-xl bg-green-500/20 text-green-400 text-sm font-medium border border-green-500/20';
+          statusBadge.innerHTML = '<i class="fas fa-circle text-xs mr-2 animate-pulse"></i>Connesso';
+        }
+      }
+    }
+    
+    // Listen for online/offline events
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Initial status check
+    updateOnlineStatus();
+    
+    // Add offline indicator to header if needed
+    const header = document.querySelector('header');
+    if (header && !document.getElementById('online-indicator')) {
+      const indicator = document.createElement('div');
+      indicator.id = 'online-indicator';
+      indicator.className = 'hidden fixed top-16 left-0 right-0 bg-yellow-500/90 text-yellow-900 text-center py-2 text-sm z-40';
+      document.body.insertBefore(indicator, document.body.firstChild);
+    }
     
     // Theme toggle
     function toggleTheme() {
