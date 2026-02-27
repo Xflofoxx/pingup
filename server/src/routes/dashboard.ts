@@ -28,6 +28,34 @@ const HTML_HEADER = `
       const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
     })();
+    
+    // DASH-07 Internationalization
+    const translations = {
+      en: { dashboard: 'Dashboard', agents: 'Agents', security: 'Security', users: 'Users', auditLog: 'Audit Log', commands: 'Commands', logout: 'Logout', connected: 'Connected', offline: 'Offline' },
+      it: { dashboard: 'Dashboard', agents: 'Agenti', security: 'Sicurezza', users: 'Utenti', auditLog: 'Audit Log', commands: 'Comandi', logout: 'Logout', connected: 'Connesso', offline: 'Offline' },
+      es: { dashboard: 'Panel', agents: 'Agentes', security: 'Seguridad', users: 'Usuarios', auditLog: 'Registro', commands: 'Comandos', logout: 'Cerrar', connected: 'Conectado', offline: 'Sin conexión' },
+      de: { dashboard: 'Dashboard', agents: 'Agenten', security: 'Sicherheit', users: 'Benutzer', auditLog: 'Protokoll', commands: 'Befehle', logout: 'Abmelden', connected: 'Verbunden', offline: 'Offline' },
+      fr: { dashboard: 'Tableau de bord', agents: 'Agents', security: 'Sécurité', users: 'Utilisateurs', auditLog: 'Journal', commands: 'Commandes', logout: 'Déconnexion', connected: 'Connecté', offline: 'Hors ligne' }
+    };
+    
+    function getLanguage() {
+      return localStorage.getItem('pingup-language') || navigator.language.split('-')[0] || 'it';
+    }
+    
+    function t(key) {
+      const lang = getLanguage();
+      return translations[lang]?.[key] || translations.en[key] || key;
+    }
+    
+    function setLanguage(lang) {
+      localStorage.setItem('pingup-language', lang);
+      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
+    }
+    window.setLanguage = setLanguage;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
+    });
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -244,6 +272,21 @@ const HTML_HEADER = `
       border-color: rgba(255, 255, 255, 0.2);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
+    /* Focus styles for accessibility */
+    *:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
     .hero-gradient {
       background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.8) 50%, #0f172a 100%);
     }
@@ -274,6 +317,10 @@ const HTML_HEADER = `
   </style>
 </head>
 <body class="gradient-bg text-gray-100 min-h-screen">
+  <!-- DASH-08 Accessibility: Skip navigation link -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-500 focus:text-white focus:rounded-lg">
+    Skip to main content
+  </a>
   <!-- Mobile Header -->
   <header class="mobile-header fixed top-0 left-0 right-0 h-16 bg-gray-900/95 backdrop-blur-xl border-b border-white/5 z-50 px-4 flex items-center justify-between">
     <button id="mobile-menu-btn" class="btn p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white">
@@ -352,8 +399,184 @@ const HTML_HEADER = `
       // Close mobile menu on Escape
       if (e.key === 'Escape') {
         closeMobileMenu();
+        closeModal();
+      }
+      
+      // Ignore if typing in input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      // DASH-05 Keyboard Shortcuts
+      if (e.key === '?') {
+        e.preventDefault();
+        showShortcutsHelp();
+      }
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[type="search"], input[name="search"]');
+        if (searchInput) (searchInput as HTMLInputElement).focus();
+      }
+      if (e.key === 'g') {
+        // g+d = Dashboard, g+a = Agents, g+s = Settings
+        setTimeout(() => {
+          if (pendingKey === 'g') {
+            const nextKey = prompt('Go to: d=Dashboard, a=Agents, s=Settings');
+            if (nextKey === 'd') window.location.href = '/dashboard';
+            if (nextKey === 'a') window.location.href = '/dashboard/agents';
+            if (nextKey === 's') window.location.href = '/dashboard/security';
+          }
+        }, 500);
+      }
+      if (e.key === 'e' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        window.location.reload();
       }
     });
+    
+    let pendingKey = '';
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'g') pendingKey = 'g';
+      else pendingKey = '';
+    });
+    
+    function showShortcutsHelp() {
+      const existing = document.getElementById('shortcuts-modal');
+      if (existing) existing.remove();
+      
+      const modal = document.createElement('div');
+      modal.id = 'shortcuts-modal';
+      modal.className = 'fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4';
+      modal.innerHTML = `
+        <div class="glass-card rounded-2xl p-6 max-w-md w-full">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-white"><i class="fas fa-keyboard mr-2"></i>Keyboard Shortcuts</h3>
+            <button onclick="closeModal()" class="btn p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Show shortcuts help</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">?</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Search</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">/</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Go to Dashboard</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g d</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Go to Agents</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g a</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Go to Settings</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">g s</kbd>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-gray-400">Refresh page</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">e</kbd>
+            </div>
+            <div class="flex justify-between py-2">
+              <span class="text-gray-400">Close modal</span>
+              <kbd class="px-2 py-1 bg-gray-700 rounded text-sm text-white">Esc</kbd>
+            </div>
+          </div>
+        </div>
+      `;
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeModal();
+      });
+      document.body.appendChild(modal);
+    }
+    
+    function closeModal() {
+      const modal = document.getElementById('shortcuts-modal');
+      if (modal) modal.remove();
+    }
+    window.closeModal = closeModal;
+    
+    // DASH-04 Offline Support
+    const CACHE_KEY = 'pingup_cache';
+    const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
+    
+    function isOnline() {
+      return navigator.onLine;
+    }
+    
+    function getCachedData() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+        
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp > CACHE_EXPIRY) {
+          localStorage.removeItem(CACHE_KEY);
+          return null;
+        }
+        return data;
+      } catch {
+        return null;
+      }
+    }
+    
+    function setCachedData(data: any) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data,
+          timestamp: Date.now()
+        }));
+      } catch {
+        // Ignore storage errors
+      }
+    }
+    
+    function updateOnlineStatus() {
+      const indicator = document.getElementById('online-indicator');
+      const statusBadge = document.getElementById('connection-status');
+      
+      if (!isOnline()) {
+        // Show offline indicator
+        if (indicator) {
+          indicator.classList.remove('hidden');
+          indicator.innerHTML = '<i class="fas fa-wifi mr-2"></i>Offline - dati potrebbero non essere aggiornati';
+        }
+        if (statusBadge) {
+          statusBadge.className = 'px-4 py-2 rounded-xl bg-yellow-500/20 text-yellow-400 text-sm font-medium border border-yellow-500/20';
+          statusBadge.innerHTML = '<i class="fas fa-exclamation-triangle text-xs mr-2"></i>Offline';
+        }
+        
+        // Load cached data
+        const cached = getCachedData();
+        if (cached) {
+          console.log('Loaded data from cache');
+        }
+      } else {
+        // Online
+        if (indicator) indicator.classList.add('hidden');
+        if (statusBadge) {
+          statusBadge.className = 'px-4 py-2 rounded-xl bg-green-500/20 text-green-400 text-sm font-medium border border-green-500/20';
+          statusBadge.innerHTML = '<i class="fas fa-circle text-xs mr-2 animate-pulse"></i>Connesso';
+        }
+      }
+    }
+    
+    // Listen for online/offline events
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Initial status check
+    updateOnlineStatus();
+    
+    // Add offline indicator to header if needed
+    const header = document.querySelector('header');
+    if (header && !document.getElementById('online-indicator')) {
+      const indicator = document.createElement('div');
+      indicator.id = 'online-indicator';
+      indicator.className = 'hidden fixed top-16 left-0 right-0 bg-yellow-500/90 text-yellow-900 text-center py-2 text-sm z-40';
+      document.body.insertBefore(indicator, document.body.firstChild);
+    }
     
     // Theme toggle
     function toggleTheme() {
@@ -383,6 +606,76 @@ const HTML_HEADER = `
         updateThemeIcon();
       }
     });
+    
+    // DASH-09 Real-time Updates via Server-Sent Events
+    let eventSource = null;
+    
+    function connectSSE() {
+      if (eventSource) eventSource.close();
+      
+      try {
+        eventSource = new EventSource('/api/v1/realtime/events?channel=all');
+        
+        eventSource.onopen = function() {
+          console.log('SSE connected');
+          const sseIndicator = document.getElementById('sse-status');
+          if (sseIndicator) {
+            sseIndicator.className = 'text-green-400 text-xs';
+            sseIndicator.innerHTML = '<i class="fas fa-bolt mr-1"></i>Real-time';
+          }
+        };
+        
+        eventSource.onmessage = function(event) {
+          try {
+            const data = JSON.parse(event.data);
+            handleRealtimeEvent(data);
+          } catch (e) {
+            console.error('Failed to parse SSE event:', e);
+          }
+        };
+        
+        eventSource.onerror = function() {
+          console.log('SSE connection error, reconnecting...');
+          const sseIndicator = document.getElementById('sse-status');
+          if (sseIndicator) {
+            sseIndicator.className = 'text-yellow-400 text-xs';
+            sseIndicator.innerHTML = '<i class="fas fa-sync fa-spin mr-1"></i>Reconnecting...';
+          }
+          eventSource.close();
+          setTimeout(connectSSE, 5000);
+        };
+      } catch (e) {
+        console.error('Failed to connect SSE:', e);
+      }
+    }
+    
+    function handleRealtimeEvent(data) {
+      if (data.type === 'agent_status') {
+        const statusEl = document.getElementById('agent-status-' + data.agent_id);
+        if (statusEl) {
+          statusEl.textContent = data.status;
+          statusEl.className = data.status === 'online' ? 'text-green-400' : 'text-gray-400';
+        }
+      }
+      if (data.type === 'metrics_update') {
+        console.log('New metrics for', data.agent_id);
+      }
+      if (data.type === 'alert_triggered') {
+        showNotification(data.alert);
+      }
+    }
+    
+    function showNotification(alert) {
+      const notification = new Notification('Pingup Alert', {
+        body: alert.message || 'New alert triggered',
+        icon: '/favicon.ico'
+      });
+    }
+    
+    // Connect SSE on dashboard pages
+    if (window.location.pathname.startsWith('/dashboard')) {
+      connectSSE();
+    }
   </script>
 `;
 
@@ -987,7 +1280,7 @@ function getDashboardLayout(user: { username: string; role: string }) {
       </div>
     </aside>
     
-    <main class="content flex-1 p-4 md:p-6 lg:p-8 relative z-10 pt-20 md:pt-24 lg:pt-8">
+    <main id="main-content" class="content flex-1 p-4 md:p-6 lg:p-8 relative z-10 pt-20 md:pt-24 lg:pt-8">
 `;
 }
 
