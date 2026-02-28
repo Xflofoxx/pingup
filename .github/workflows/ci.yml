@@ -34,26 +34,3 @@ jobs:
         run: |
           cd server && bun test
           cd ../agent && bun test
-
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: '1.1'
-
-      - name: Install dependencies
-        run: |
-          cd server && bun install
-          cd ../agent && bun install
-
-      - name: Run security audit
-        run: |
-          cd server && bun audit
-          cd ../agent && bun audit

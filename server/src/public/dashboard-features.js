@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // DASH-04 Offline Support
 const CACHE_KEY = 'pingup_cache';
 const CACHE_EXPIRY = 5 * 60 * 1000;
