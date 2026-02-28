@@ -25,6 +25,9 @@ jobs:
           cd server && bun install
           cd ../agent && bun install
 
+      - name: Debug - List server/src files
+        run: ls -la server/src/
+
       - name: Run linter
         run: |
           cd server && bun run lint
