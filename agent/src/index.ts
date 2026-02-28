@@ -206,16 +206,6 @@ app.post("/auth/logout", (c) => {
   return c.json({ success: true });
 });
 
-function requireAuth() {
-  return async (c: any, next: () => Promise<void>) => {
-    if (!authToken || !authorizedUser) {
-      return c.json({ error: "Not authenticated" }, 401);
-    }
-    c.set("user", authorizedUser);
-    await next();
-  };
-}
-
 app.post("/auth/verify-password", async (c) => {
   const body = await c.req.json();
   const { password } = body;
@@ -264,7 +254,6 @@ app.get("/logs", (c) => {
 });
 
 app.get("/dashboard", (c) => {
-  const m = latestMetrics as any;
   const uptime = process.uptime();
   const config = getConfig();
   
@@ -602,7 +591,7 @@ let latestMetrics: Record<string, unknown> = {};
 let metricsCache: { data: Record<string, unknown>; timestamp: number } | null = null;
 const METRICS_CACHE_TTL = 5000; // 5 seconds cache for dashboard
 
-function getCachedMetrics(config: ReturnType<typeof getConfig>): Record<string, unknown> {
+function getCachedMetrics(_config: ReturnType<typeof getConfig>): Record<string, unknown> {
   const now = Date.now();
   if (metricsCache && now - metricsCache.timestamp < METRICS_CACHE_TTL) {
     return metricsCache.data;
@@ -610,8 +599,8 @@ function getCachedMetrics(config: ReturnType<typeof getConfig>): Record<string, 
   return null;
 }
 
-function setCachedMetrics(data: Record<string, unknown>) {
-  metricsCache = { data, timestamp: Date.now() };
+function setCachedMetrics(_data: Record<string, unknown>) {
+  metricsCache = { data: _data, timestamp: Date.now() };
 }
 
 async function main() {

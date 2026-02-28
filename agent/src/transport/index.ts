@@ -3,9 +3,7 @@ import {
   encodeMessage,
   decodeMessage,
   MessageType,
-  Flags,
   createMetricsPayload,
-  parseMetricsPayload,
   parseCommandPayload,
   createCommandResultPayload,
   createConfigRequestPayload,
@@ -230,9 +228,7 @@ export class HTTPSender {
   private async fetchConfigBinary(): Promise<Record<string, any> | null> {
     try {
       const config = getConfig();
-      const payload = createConfigRequestPayload(config.agent_id);
-      
-      const encoded = encodeMessage(MessageType.CONFIG_REQUEST, payload);
+      encodeMessage(MessageType.CONFIG_REQUEST, createConfigRequestPayload(config.agent_id));
 
       const response = await fetch(
         `${this.baseUrl}/api/v1/config/bin/${config.agent_id}`,

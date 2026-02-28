@@ -17,9 +17,7 @@ export async function getDHCPLeases(): Promise<DHCPLease[]> {
 
 async function getWindowsDHCPLeases(): Promise<DHCPLease[]> {
   try {
-    const { execSync } = require("child_process");
-    
-    const output = execSync("netsh dhcp show server 2>&1", { encoding: "utf-8", timeout: 5000 });
+    require("child_process").execSync("netsh dhcp show server 2>&1", { encoding: "utf-8", timeout: 5000 });
     
     return [];
   } catch {

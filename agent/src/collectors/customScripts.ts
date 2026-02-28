@@ -10,8 +10,6 @@ export async function runCustomScript(
   command: string,
   timeout: number = 30
 ): Promise<CustomScriptResult> {
-  const startTime = Date.now();
-  
   try {
     const proc = Bun.spawn(command.split(" "), {
       shell: true,
@@ -24,7 +22,6 @@ export async function runCustomScript(
     ]);
     
     const exitCode = await proc.exited;
-    const duration = Date.now() - startTime;
     
     if (exitCode !== 0) {
       return {

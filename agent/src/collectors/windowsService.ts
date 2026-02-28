@@ -1,5 +1,4 @@
 import { execSync } from "child_process";
-import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 
 export interface ServiceConfig {
@@ -82,12 +81,12 @@ export function stopService(): boolean {
   try {
     execSync(`powershell -Command "Stop-Service -Name '${SERVICE_NAME}' -Force"`, { stdio: "pipe" });
     return true;
-  } catch;
+  } catch (_e) {
+    return false;
   }
 }
 
 export function getServiceStatus(): { installed: boolean; running: boolean; status: string } {
-    return falseStatus(): { installed: boolean; running: boolean; status: string } {
   try {
     const output = execSync(`powershell -Command "Get-Service -Name '${SERVICE_NAME}' | Select-Object Status | ConvertTo-Json"`, { stdio: "pipe" }).toString();
     const parsed = JSON.parse(output);

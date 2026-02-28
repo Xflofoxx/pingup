@@ -70,7 +70,6 @@ export async function scanARP(network: string): Promise<ARPEntry[]> {
     const hostBits = 32 - prefix;
     const numHosts = Math.pow(2, hostBits);
     
-    const results: ARPEntry[] = [];
     const startHost = octets[3];
     
     for (let i = Math.max(1, startHost); i < Math.min(254, startHost + Math.min(numHosts, 256)); i++) {

@@ -23,7 +23,6 @@ const FINGERPRINTS = [
 
 export function fingerprintDevice(mac: string, hostname: string = "", ports: number[] = []): DeviceFingerprint {
   const macUpper = mac.toUpperCase();
-  const macPrefix = macUpper.substring(0, 8);
   const indicators: string[] = [];
   let vendor = "Unknown";
   let type = "unknown";

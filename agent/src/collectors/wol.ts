@@ -1,4 +1,3 @@
-import { execSync } from "child_process";
 import { createSocket } from "dgram";
 
 export interface WOLResult {

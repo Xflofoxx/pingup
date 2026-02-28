@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 // DASH-04 Offline Support
 const CACHE_KEY = 'pingup_cache';
 const CACHE_EXPIRY = 5 * 60 * 1000;
@@ -148,7 +147,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fun
 });
 
 // Collapsible sections
-document.querySelectorAll('.collapsible-header').forEach(header => {
+document.querySelectorAll('.collapsible-header').forEach(function(header) {
   header.addEventListener('click', function() {
     const content = this.nextElementSibling;
     const icon = this.querySelector('.collapsible-icon');
@@ -156,3 +155,6 @@ document.querySelectorAll('.collapsible-header').forEach(header => {
     if (icon) icon.classList.toggle('rotated');
   });
 });
+
+// Export for potential future use
+window.pingupOffline = { getCachedData, setCachedData, isOnline };
