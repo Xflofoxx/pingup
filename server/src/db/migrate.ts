@@ -474,6 +474,55 @@ sqliteDb.exec(`
 `);
 
 sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS siem_assets (
+    id TEXT PRIMARY KEY,
+    agent_id TEXT NOT NULL,
+    ip TEXT,
+    mac TEXT,
+    hostname TEXT,
+    vendor TEXT,
+    os TEXT,
+    device_type TEXT,
+    type_confidence REAL,
+    ports TEXT DEFAULT '[]',
+    software TEXT DEFAULT '[]',
+    risk_score INTEGER DEFAULT 0,
+    risk_label TEXT DEFAULT 'clean',
+    snmp_community TEXT,
+    snmp_sysdescr TEXT,
+    first_seen TEXT,
+    last_seen TEXT,
+    status TEXT DEFAULT 'online'
+  )
+`);
+
+sqliteDb.exec(`
+  CREATE TABLE IF NOT EXISTS siem_findings (
+    id TEXT PRIMARY KEY,
+    asset_id TEXT NOT NULL,
+    cve_id TEXT,
+    severity TEXT NOT NULL,
+    cvss REAL,
+    title TEXT,
+    description TEXT,
+    remediation TEXT,
+    port INTEGER,
+    protocol TEXT,
+    known_exploited INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'open',
+    first_detected TEXT,
+    last_seen TEXT,
+    FOREIGN KEY (asset_id) REFERENCES siem_assets(id)
+  )
+`);
+
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_siem_assets_agent ON siem_assets(agent_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_siem_assets_device_type ON siem_assets(device_type)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_siem_findings_asset ON siem_findings(asset_id)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_siem_findings_severity ON siem_findings(severity)`);
+sqliteDb.exec(`CREATE INDEX IF NOT EXISTS idx_siem_findings_status ON siem_findings(status)`);
+
+sqliteDb.exec(`
   CREATE TABLE IF NOT EXISTS isms_controls (
     id TEXT PRIMARY KEY,
     domain TEXT NOT NULL,

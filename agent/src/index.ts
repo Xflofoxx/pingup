@@ -15,6 +15,7 @@ import { collectGPU } from "./collectors/gpu.ts";
 import { collectWiFi } from "./collectors/wifi.ts";
 import { runCustomScripts } from "./collectors/customScripts.ts";
 import { HTTPSender, type Command } from "./transport/index.ts";
+import { runDiscovery } from "./discovery/scanner.ts";
 import { Hono } from "hono";
 
 async function sign(data: string, secret: string): Promise<string> {
@@ -613,12 +614,53 @@ async function main() {
   console.log(`Poll interval: ${config.poll_interval}s`);
   
   const sender = new HTTPSender();
-  
+
+  let lastDiscoveryAt = 0;
+
+  async function runScheduledDiscovery(config: ReturnType<typeof getConfig>) {
+    if (!config.discovery?.enabled || !config.discovery?.ranges?.length) return;
+    const interval = (config.discovery.interval || 3600) * 1000;
+    const now = Date.now();
+    if (now - lastDiscoveryAt < interval) return;
+    lastDiscoveryAt = now;
+
+    console.log(`Running network discovery over ${config.discovery.ranges.join(", ")}`);
+    try {
+      const result = await runDiscovery(
+        config.discovery.ranges,
+        config.discovery.ports || [22, 80, 443, 3389, 8080],
+        { snmpCommunity: config.discovery.snmpCommunity }
+      );
+
+      const vulnerable = result.hosts.filter((h) => (h.riskScore || 0) >= 30).length;
+
+      await sender.sendDiscovery(config.agent_id, {
+        hosts: result.hosts.map((h) => ({
+          ip: h.ip,
+          latency: h.latency,
+          ports: h.ports,
+          profile: h.profile,
+          findings: h.findings,
+          riskScore: h.riskScore,
+          riskLabel: h.riskLabel,
+        })),
+        duration: result.duration,
+      });
+
+      console.log(
+        `Discovery completed: ${result.hosts.length} hosts online, ${vulnerable} with significant risk (${result.duration}ms)`
+      );
+    } catch (e) {
+      console.error("Discovery failed:", e);
+    }
+  }
+
   async function loop() {
     try {
       const metrics = await collectAllMetrics(config);
       latestMetrics = metrics;
       setCachedMetrics(metrics);
+      await runScheduledDiscovery(config);
       
 const payload = {
         agentId: config.agent_id,

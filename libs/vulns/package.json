@@ -1,0 +1,21 @@
+{
+  "name": "@pingup/vulns",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Network device vulnerability detection engine with CLI",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cli": "./src/cli.ts"
+  },
+  "bin": {
+    "pingup-vulns": "./src/cli.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "lint": "eslint src/"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "bun-types": "^1.1.0"
+  }
+}

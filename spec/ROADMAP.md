@@ -1,8 +1,8 @@
 # Version Roadmap
 
-> **Version**: 1.7.0  
+> **Version**: 1.8.0  
 > **Status**: Active  
-> **Last Updated**: 2026-02-26
+> **Last Updated**: 2026-09-16
 
 ---
 
@@ -255,6 +255,33 @@ None planned for this release.
 
 ---
 
+## Version 1.8.0 - Network SIEM
+
+**Release Date**: 2026-09-16  
+**Status**: ✅ Released
+**Focus**: Vulnerability management for discovered network devices
+
+### Server Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| SERV-044 | Network SIEM monitoring | ✅ Complete |
+
+### Agent Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| AGENT-052 | Device profiling (SNMP + banners) | ✅ Complete |
+| AGENT-053 | Vulnerability reporting | ✅ Complete |
+
+### Dashboard Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| DASH-11 | SIEM dashboard page | ✅ Complete |
+
+---
+
 ## Release Schedule
 
 | Version | Focus | Release Date | Status |
@@ -267,6 +294,7 @@ None planned for this release.
 | 1.5.0 | IT/OT Convergence | 2026-02-26 | ✅ |
 | 1.6.0 | Dashboard Usability | 2026-02-26 | ✅ |
 | 1.7.0 | Additional Features | 2026-02-26 | ✅ |
+| 1.8.0 | Network SIEM | 2026-09-16 | ✅ |
 | 2.0.0 | Cloud & Scale | Q1 2027 | 📋 |
 
 ---
@@ -297,3 +325,4 @@ To contribute a new requirement:
 | 2026-02-26 | 1.6.0 | Added Dashboard Usability specs (DASH-01 to DASH-10) |
 | 2026-02-26 | 1.7.0 | Updated roadmap - all features implemented |
 | 2026-02-26 | 1.7.0 | Added AGENT-051 Dashboard Page |
+| 2026-09-16 | 1.8.0 | Added Network SIEM (SERV-044, AGENT-052/053, DASH-11) |

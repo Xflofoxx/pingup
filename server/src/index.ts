@@ -36,6 +36,7 @@ import { performanceRouter } from "./routes/performance.ts";
 import { ismsRouter } from "./routes/isms.ts";
 import { notificationsRouter, initNotificationsTable } from "./routes/notifications.ts";
 import { realtimeRouter } from "./routes/realtime.ts";
+import { siemRouter } from "./routes/siem.ts";
 import { logger } from "./utils/logger.ts";
 import { listAgents } from "./services/agent.ts";
 import { getDeviceCount } from "./db/duckdb.ts";
@@ -113,6 +114,7 @@ app.route("/api/v1/performance", performanceRouter);
 app.route("/api/v1/isms", ismsRouter);
 app.route("/api/v1/notifications", notificationsRouter);
 app.route("/api/v1/realtime", realtimeRouter);
+app.route("/api/v1/siem", siemRouter);
 app.route("/api_docs", swaggerRouter);
 app.route("/", dashboardRouter);
 

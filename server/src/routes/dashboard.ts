@@ -1172,6 +1172,9 @@ function getDashboardLayout(user: { username: string; role: string }) {
         <a href="/dashboard/security" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
           <i class="fas fa-shield-alt w-5"></i> <span class="nav-text font-medium">Sicurezza</span>
         </a>
+        <a href="/dashboard/siem" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
+          <i class="fas fa-radar w-5"></i> <span class="nav-text font-medium">SIEM</span>
+        </a>
         ` : ''}
         
         ${hasRole(user.role, "ADM") ? `
@@ -1526,6 +1529,31 @@ dashboardRouter.get("/dashboard/security", async (c) => {
   const agents = listAgents();
   
   return c.html(getSecurityPage({ username: user!.username, role: user!.role }, agents));
+});
+
+dashboardRouter.get("/dashboard/siem", async (c) => {
+  const token = getCookie(c, "auth_token");
+  
+  if (!token) {
+    return c.redirect("/login");
+  }
+  
+  const payload = await verifyToken(token);
+  
+  if (!payload || !hasRole(payload.role, "SUP")) {
+    return c.redirect("/dashboard");
+  }
+  
+  const user = getUserById(payload.sub);
+  
+  const { getSiemOverview, listSiemAssets, listSiemFindings } = await import("../services/siem.ts");
+  const overview = getSiemOverview();
+  const assets = listSiemAssets();
+  const findings = listSiemFindings({ status: "open" });
+  
+  return c.html(
+    getSiemPage({ username: user!.username, role: user!.role }, overview, assets, findings)
+  );
 });
 
 dashboardRouter.get("/logout", async (c) => {
@@ -1986,6 +2014,177 @@ function getSecurityPage(user: { username: string; role: string }, agents: any[]
               <td class="py-4 text-gray-400 text-sm">${agent.last_seen || 'Mai'}</td>
             </tr>
             `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` + getDashboardFooter();
+}
+
+function severityStyles(severity: string) {
+  const map: Record<string, string> = {
+    critical: "bg-red-500/20 text-red-400 border border-red-500/30",
+    high: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
+    medium: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+    low: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+    info: "bg-gray-500/20 text-gray-400 border border-gray-500/30",
+  };
+  return map[severity] || map.info;
+}
+
+function riskColor(riskLabel: string) {
+  const map: Record<string, string> = {
+    critical: "text-red-400",
+    high: "text-orange-400",
+    medium: "text-yellow-400",
+    low: "text-blue-400",
+    clean: "text-green-400",
+  };
+  return map[riskLabel] || "text-gray-400";
+}
+
+function getSiemPage(
+  user: { username: string; role: string },
+  overview: any,
+  assets: any[],
+  findings: any[]
+) {
+  const critical = overview.bySeverity?.critical || 0;
+  const high = overview.bySeverity?.high || 0;
+  const medium = overview.bySeverity?.medium || 0;
+  const low = overview.bySeverity?.low || 0;
+
+  return getDashboardLayout(user) + `
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-white">SIEM</h1>
+          <p class="text-gray-400 mt-1">Monitoraggio vulnerabilità dispositivi di rete</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-300 text-sm font-medium border border-white/10">
+            <i class="fas fa-clock text-blue-400 mr-2"></i>Ultimo scan: ${overview.lastScan || 'Mai'}
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div class="glass-card rounded-3xl p-6 glow-blue">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/30 to-cyan-500/30 flex items-center justify-center border border-blue-500/20 mb-4">
+          <i class="fas fa-network-wired text-blue-400 text-2xl"></i>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Dispositivi Rilevati</p>
+        <p class="text-4xl font-bold text-white mt-1">${overview.totalAssets}</p>
+      </div>
+      
+      <div class="glass-card rounded-3xl p-6 glow-red">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/30 to-orange-500/30 flex items-center justify-center border border-red-500/20 mb-4">
+          <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Critical + High</p>
+        <p class="text-4xl font-bold text-red-400 mt-1">${critical + high}</p>
+      </div>
+      
+      <div class="glass-card rounded-3xl p-6 glow-blue">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500/30 to-amber-500/30 flex items-center justify-center border border-yellow-500/20 mb-4">
+          <i class="fas fa-tasks text-yellow-400 text-2xl"></i>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Findings Aperti</p>
+        <p class="text-4xl font-bold text-yellow-400 mt-1">${overview.totalFindings}</p>
+      </div>
+      
+      <div class="glass-card rounded-3xl p-6 glow-red">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/30 to-rose-500/30 flex items-center justify-center border border-red-500/20 mb-4">
+          <i class="fas fa-user-shield text-red-400 text-2xl"></i>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Dispositivi a Rischio</p>
+        <p class="text-4xl font-bold text-red-400 mt-1">${overview.atRiskAssets}</p>
+      </div>
+      
+      <div class="glass-card rounded-3xl p-6 glow-blue">
+        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/30 to-indigo-500/30 flex items-center justify-center border border-purple-500/20 mb-4">
+          <i class="fas fa-chart-line text-purple-400 text-2xl"></i>
+        </div>
+        <p class="text-gray-400 text-sm font-medium">Rischio Medio</p>
+        <p class="text-4xl font-bold text-white mt-1">${overview.avgRiskScore}</p>
+      </div>
+    </div>
+    
+    <div class="glass-card rounded-3xl p-8 mb-8">
+      <h2 class="text-xl font-semibold text-white mb-6">
+        <i class="fas fa-flag text-yellow-400 mr-3"></i>Findings Critici / Alti
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+        ${[
+          ['critical', critical, 'text-red-400'],
+          ['high', high, 'text-orange-400'],
+          ['medium', medium, 'text-yellow-400'],
+          ['low', low, 'text-blue-400'],
+        ].map(([sev, count, color]) => `
+          <div class="rounded-2xl bg-white/5 border border-white/10 p-4">
+            <p class="text-gray-400 text-sm capitalize">${sev}</p>
+            <p class="text-3xl font-bold ${color}">${count}</p>
+          </div>
+        `).join('')}
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-white/5">
+              <th class="pb-4 font-medium">Severity</th>
+              <th class="pb-4 font-medium">Finding</th>
+              <th class="pb-4 font-medium">CVE</th>
+              <th class="pb-4 font-medium">Porta</th>
+              <th class="pb-4 font-medium">Stato</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${findings.slice(0, 20).map(f => `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="py-3">
+                <span class="px-3 py-1.5 rounded-full text-xs font-medium ${severityStyles(f.severity)}">${f.severity}</span>
+              </td>
+              <td class="py-3 text-gray-300 text-sm">${f.title}</td>
+              <td class="py-3 font-mono text-xs text-blue-400">${f.cve_id || '-'}</td>
+              <td class="py-3 text-gray-400 text-sm">${f.port || '-'}${f.protocol ? ' (' + f.protocol + ')' : ''}</td>
+              <td class="py-3 text-gray-400 text-sm capitalize">${f.status}</td>
+            </tr>
+            `).join('') || '<tr><td colspan="5" class="py-6 text-center text-gray-500">Nessun finding aperto</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="glass-card rounded-3xl p-8">
+      <h2 class="text-xl font-semibold text-white mb-6">
+        <i class="fas fa-server text-blue-400 mr-3"></i>Inventario Dispositivi
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-gray-400 border-b border-white/5">
+              <th class="pb-4 font-medium">IP</th>
+              <th class="pb-4 font-medium">Hostname</th>
+              <th class="pb-4 font-medium">Tipo</th>
+              <th class="pb-4 font-medium">Vendor</th>
+              <th class="pb-4 font-medium">OS</th>
+              <th class="pb-4 font-medium">Porte</th>
+              <th class="pb-4 font-medium">Rischio</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${assets.map(a => `
+            <tr class="border-b border-white/5 hover:bg-white/5 transition">
+              <td class="py-4 font-mono text-sm text-blue-400">${a.ip || '-'}</td>
+              <td class="py-4 text-gray-300 text-sm">${a.hostname || '-'}</td>
+              <td class="py-4 text-gray-300 text-sm">${a.device_type || 'other'}</td>
+              <td class="py-4 text-gray-400 text-sm">${a.vendor || '-'}</td>
+              <td class="py-4 text-gray-400 text-sm">${a.os || '-'}</td>
+              <td class="py-4 text-gray-400 text-sm font-mono">${(JSON.parse(a.ports || '[]')).join(', ') || '-'}</td>
+              <td class="py-4 font-semibold ${riskColor(a.risk_label)}">${a.risk_label} (${a.risk_score})</td>
+            </tr>
+            `).join('') || '<tr><td colspan="7" class="py-6 text-center text-gray-500">Nessun dispositivo rilevato. Abilita discovery con profiling sull\'agente.</td></tr>'}
           </tbody>
         </table>
       </div>

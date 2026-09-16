@@ -56,6 +56,34 @@ export class HTTPSender {
     return this.sendMetricsJson(payload);
   }
 
+  async sendDiscovery(
+    agentId: string,
+    discovery: {
+      hosts: Array<Record<string, unknown>>;
+      duration: number;
+    }
+  ): Promise<boolean> {
+    try {
+      const payload = {
+        agentId,
+        timestamp: new Date().toISOString(),
+        discovery,
+      };
+
+      const response = await fetch(`${this.baseUrl}/api/v1/discovery`, {
+        method: "POST",
+        headers: this.getHeaders("application/json"),
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(this.timeout * 2),
+      });
+
+      return response.ok;
+    } catch (e) {
+      console.error("Failed to send discovery:", e);
+      return false;
+    }
+  }
+
   private async sendMetricsBinary(payload: MetricsPayload): Promise<boolean> {
     try {
       const timestamp = typeof payload.timestamp === "string" 

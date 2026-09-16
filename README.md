@@ -1,7 +1,7 @@
 # Pingup
 
 > Lightweight network monitoring agent and server with ICMP ping and network scanning capabilities.
-> **Version**: 1.8.0
+> **Version**: 1.9.0
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bun](https://img.shields.io/badge/Bun-1.1+-red.svg)](https://bun.sh)
@@ -30,6 +30,7 @@ Pingup is a lightweight monitoring solution that collects system metrics from re
 - **SSL Certificates**: Monitor SSL certificate expiration
 - **Enterprise Features**: API tokens, maintenance windows, data retention, multi-tenancy
 - **IT/OT Security**: IEC 62443 compliance, ISO 27001 ISMS, OT asset management
+- **Network SIEM**: SNMP + banner device profiling, CVE/heuristic vulnerability detection, risk scoring and `/dashboard/siem` posture page
 
 ## Quick Start
 
@@ -279,6 +280,7 @@ Pingup uses MessagePack binary encoding for optimal data transmission. The binar
 | `/api/v1/ot-assets/*` | GET/POST | OT asset management |
 | `/api/v1/performance/*` | GET | Performance metrics |
 | `/api/v1/isms/*` | GET/POST | ISO 27001 ISMS |
+| `/api/v1/siem/*` | GET/POST | Network SIEM (assets, findings, overview) |
 | `/api/v1/auth/*` | GET/POST | Authentication |
 | `/api/v1/users` | GET | User management (Admin) |
 
@@ -383,6 +385,20 @@ bun libs/scanner/src/cli.ts 192.168.1.0/24 -p 22,80,443 --json
 - [ROADMAP.md](spec/ROADMAP.md) - Project roadmap
 
 ## Release Notes
+
+### Version 1.9.0 - Network SIEM
+**Release Date**: September 2026
+
+Real-time vulnerability monitoring for discovered network devices.
+
+**Features:**
+- Device profiling (AGENT-052): SNMP fingerprints + banner grabbing (SSH/FTP/SMTP/Telnet/HTTP)
+- Vulnerability engine (`@pingup/vulns`): CVE database, heuristic rules, risk scoring (SERV-044)
+- SIEM APIs: `/api/v1/siem/*` overview, assets, findings with triage workflow
+- SIEM dashboard: `/dashboard/siem` status page with severity counts and device inventory
+- Real-time updates on SSE `siem` channel after every discovery scan
+
+---
 
 ### Version 1.8.0 - Binary Protocol
 **Release Date**: February 2026

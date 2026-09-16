@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import { getDb } from "../db/duckdb.ts";
+import { ingestDiscovery } from "../services/siem.ts";
+import { emitSiemUpdate } from "./realtime.ts";
 
 export const discoveryRouter = new Hono();
 
@@ -7,6 +9,10 @@ interface DiscoveryHost {
   ip: string;
   latency?: number;
   ports?: number[];
+  profile?: Record<string, unknown> | null;
+  findings?: Array<Record<string, unknown>>;
+  riskScore?: number;
+  riskLabel?: string;
 }
 
 interface DiscoveryPayload {
@@ -39,7 +45,12 @@ discoveryRouter.post("/", async (c) => {
       stmt.run(agentId, scanTimestamp, host.ip, host.latency || null, JSON.stringify(host.ports || []), discovery.duration);
     }
 
-    return c.json({ success: true, message: "Discovery data stored" }, 201);
+    const siemResult = ingestDiscovery(agentId, scanTimestamp, discovery.hosts);
+    if (siemResult.assetsUpserted > 0) {
+      emitSiemUpdate(agentId, siemResult);
+    }
+
+    return c.json({ success: true, message: "Discovery data stored", siem: siemResult }, 201);
   } catch (error) {
     console.error("Error storing discovery data:", error);
     return c.json({ error: "Internal server error" }, 500);

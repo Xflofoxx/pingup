@@ -26,6 +26,16 @@ export function emitAlert(alert: any) {
   broadcastEvent("alerts", { type: "alert_triggered", alert });
 }
 
+export function emitSiemUpdate(agentId: string, summary: any) {
+  broadcastEvent("siem", { type: "siem_update", agent_id: agentId, summary });
+  broadcastEvent("alerts", {
+    type: "siem_scan",
+    agent_id: agentId,
+    new_findings: summary.findingsCreated,
+    assets: summary.assetsUpserted,
+  });
+}
+
 realtimeRouter.get("/events", async (c) => {
   const token = c.req.raw.headers.get("Cookie")?.match(/auth_token=([^;]+)/)?.[1];
   if (!token) {

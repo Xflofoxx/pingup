@@ -24,6 +24,8 @@ export interface AgentConfig {
     ranges: string[];
     interval: number;
     ports: number[];
+    profiling?: boolean;
+    snmpCommunity?: string;
   };
   custom_scripts?: {
     name: string;
@@ -66,6 +68,7 @@ config = {
         ranges: [],
         interval: 3600,
         ports: [22, 80, 443, 3389, 8080],
+        profiling: true,
       },
     };
   }

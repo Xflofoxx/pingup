@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions CI/CD pipeline
 - Comprehensive CONTRIBUTING.md guidelines
 - Security audit in CI pipeline
+- Network SIEM (SERV-044): device profiling via SNMP + banners, `@pingup/vulns` detection engine
+- SIEM APIs `/api/v1/siem/*` and `/dashboard/siem` posture page
+- Real-time `siem` SSE channel updates after discovery scans
 
 ### Changed
 - Updated development setup instructions
