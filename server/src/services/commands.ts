@@ -79,3 +79,13 @@ export function updateCommandResult(
   stmt.run(JSON.stringify(result), status, id);
   logger.info(`Command ${id} updated: ${status}`);
 }
+
+export function deleteCommand(id: string): boolean {
+  const db = getDb();
+  const stmt = db.prepare("DELETE FROM commands WHERE id = ?");
+  const result = stmt.run(id);
+  if (result.changes > 0) {
+    logger.info(`Command deleted: ${id}`);
+  }
+  return result.changes > 0;
+}

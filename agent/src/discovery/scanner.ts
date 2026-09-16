@@ -1,5 +1,5 @@
-import { scanNetwork } from "../../libs/scanner/src/index.ts";
-import type { DeviceProfile, VulnerabilityFinding } from "../../libs/vulns/src/index.ts";
+import { scanNetwork } from "../../../libs/scanner/src/index.ts";
+import type { DeviceProfile, VulnerabilityFinding } from "../../../libs/vulns/src/index.ts";
 import { profileHosts } from "../collectors/profiler.ts";
 
 export interface DiscoveryHost {

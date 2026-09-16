@@ -93,3 +93,18 @@ export function updateAgentOwner(agentId: string, ownerId: string): boolean {
   const result = stmt.run(ownerId, agentId);
   return result.changes > 0;
 }
+
+export function updateAgent(id: string, input: { name?: string; metadata?: Record<string, any> }): Agent | undefined {
+  const db = getDb();
+  const current = getAgent(id);
+  if (!current) return undefined;
+
+  const name = input.name !== undefined ? input.name : current.name;
+  const metadata =
+    input.metadata !== undefined ? JSON.stringify(input.metadata) : current.metadata;
+
+  db.prepare("UPDATE agents SET name = ?, metadata = ? WHERE id = ?").run(name, metadata, id);
+
+  logger.info(`Agent updated: ${id}`);
+  return getAgent(id);
+}

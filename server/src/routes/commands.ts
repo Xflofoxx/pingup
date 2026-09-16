@@ -1,10 +1,11 @@
 import { Hono } from "hono";
-import { 
-  getCommand, 
-  listCommands, 
-  createCommand, 
+import {
+  createCommand,
+  getCommand,
+  listCommands,
   getPendingCommands,
-  updateCommandResult 
+  updateCommandResult,
+  deleteCommand,
 } from "../services/commands.ts";
 import {
   decodeMessage,
@@ -95,6 +96,17 @@ commandsRouter.post("/", async (c) => {
   });
   
   return c.json({ command }, 201);
+});
+
+commandsRouter.delete("/:id", (c) => {
+  const id = c.req.param("id");
+  const deleted = deleteCommand(id);
+
+  if (!deleted) {
+    return c.json({ error: "Command not found" }, 404);
+  }
+
+  return c.json({ success: true });
 });
 
 commandsRouter.post("/:id/result", async (c) => {

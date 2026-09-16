@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { getDb } from "../db/duckdb.ts";
 import { ingestDiscovery } from "../services/siem.ts";
 import { emitSiemUpdate } from "./realtime.ts";
+import { createCommand } from "../services/commands.ts";
+import { getAgent } from "../services/agent.ts";
 
 export const discoveryRouter = new Hono();
 
@@ -53,6 +55,45 @@ discoveryRouter.post("/", async (c) => {
     return c.json({ success: true, message: "Discovery data stored", siem: siemResult }, 201);
   } catch (error) {
     console.error("Error storing discovery data:", error);
+    return c.json({ error: "Internal server error" }, 500);
+  }
+});
+
+discoveryRouter.post("/scan", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { agentId, ranges, ports } = body;
+
+    if (!agentId) {
+      return c.json({ error: "agentId required" }, 400);
+    }
+
+    const agent = getAgent(agentId);
+    if (!agent) {
+      return c.json({ error: "Agent not found" }, 404);
+    }
+
+    const params: Record<string, unknown> = {};
+    if (Array.isArray(ranges) && ranges.length) params.ranges = ranges;
+    if (Array.isArray(ports) && ports.length) params.ports = ports;
+
+    const command = createCommand({
+      id: `SCAN-${Date.now()}`,
+      agent_id: agentId,
+      action: "run_discovery",
+      params,
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: `Discovered scan scheduled for agent ${agentId}`,
+        command,
+      },
+      202
+    );
+  } catch (error) {
+    console.error("Error scheduling scan:", error);
     return c.json({ error: "Internal server error" }, 500);
   }
 });

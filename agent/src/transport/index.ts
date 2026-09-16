@@ -29,6 +29,19 @@ export interface Command {
   signature: string;
 }
 
+export function normalizeParams(value: unknown): Record<string, any> {
+  if (!value) return {};
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+  return typeof value === "object" ? (value as Record<string, any>) : {};
+}
+
 export class HTTPSender {
   private baseUrl: string;
   private authToken: string;
@@ -160,7 +173,11 @@ export class HTTPSender {
       const decoded = decodeMessage(new Uint8Array(data));
       
       const commands = decoded.payload.cmds as Array<Record<string, unknown>> || [];
-      return commands.map((cmd) => parseCommandPayload(cmd)) as Command[];
+      return commands.map((cmd) => {
+        const parsed = parseCommandPayload(cmd) as Command;
+        parsed.params = normalizeParams(parsed.params);
+        return parsed;
+      });
     } catch (e) {
       console.error("Failed to fetch commands (binary):", e);
       return this.fetchCommandsJson();
@@ -181,7 +198,11 @@ export class HTTPSender {
       if (!response.ok) return [];
       
       const data = await response.json();
-      return data.commands || [];
+      const commands = (data.commands || []) as Array<Record<string, unknown>>;
+      return commands.map((cmd) => ({
+        ...cmd,
+        params: normalizeParams(cmd.params),
+      })) as Command[];
     } catch (e) {
       console.error("Failed to fetch commands (JSON):", e);
       return [];

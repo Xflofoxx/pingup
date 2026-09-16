@@ -5,6 +5,7 @@ import {
   listCommands,
   getPendingCommands,
   updateCommandResult,
+  deleteCommand,
 } from "../../src/services/commands";
 import { getDb } from "../../src/db/sqlite";
 import { createAgent } from "../../src/services/agent";
@@ -92,5 +93,18 @@ describe("Commands Service", () => {
     const command = getCommand("CMD-006");
     expect(command?.status).toBe("completed");
     expect(command?.result).toContain("success");
+  });
+
+  test("deleteCommand should remove an existing command", () => {
+    const agent = createAgent({ id: "cmd-agent-007" });
+    createCommand({ id: "CMD-007", agent_id: agent.id, action: "ping" });
+
+    expect(getCommand("CMD-007")).toBeDefined();
+    expect(deleteCommand("CMD-007")).toBe(true);
+    expect(getCommand("CMD-007")).toBeUndefined();
+  });
+
+  test("deleteCommand should return false for a non-existent command", () => {
+    expect(deleteCommand("non-existent")).toBe(false);
   });
 });

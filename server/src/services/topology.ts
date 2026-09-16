@@ -46,12 +46,24 @@ export function getNetworkTopology(agentId?: string): NetworkTopology {
     });
   }
   
-  const discoveryData = db.prepare(`
+  let discoveryQuery = `
     SELECT DISTINCT host_ip, ports, latency FROM discovery
-    WHERE agent_id = ?
     ORDER BY scan_timestamp DESC
     LIMIT 100
-  `).all(agentId || "%") as any[];
+  `;
+  let discoveryParams: unknown[] = [];
+
+  if (agentId) {
+    discoveryQuery = `
+      SELECT DISTINCT host_ip, ports, latency FROM discovery
+      WHERE agent_id = ?
+      ORDER BY scan_timestamp DESC
+      LIMIT 100
+    `;
+    discoveryParams = [agentId];
+  }
+
+  const discoveryData = db.prepare(discoveryQuery).all(...discoveryParams) as any[];
   
   for (const device of discoveryData) {
     if (!nodes.find(n => n.ip === device.host_ip)) {
@@ -66,16 +78,17 @@ export function getNetworkTopology(agentId?: string): NetworkTopology {
     }
   }
   
-  for (const node of nodes) {
-    if (node.type === "router" || node.type === "switch") {
-      for (const target of nodes) {
-        if (target.id !== node.id) {
-          links.push({
-            source: node.id,
-            target: target.id,
-            type: "wired",
-          });
-        }
+  const hubs = nodes.filter((n) => n.type === "router" || n.type === "switch");
+  const hubTargets = hubs.length > 0 ? hubs : nodes.filter((n) => n.type === "agent").slice(0, 1);
+
+  for (const node of hubTargets) {
+    for (const target of nodes) {
+      if (target.id !== node.id) {
+        links.push({
+          source: node.id,
+          target: target.id,
+          type: "wired",
+        });
       }
     }
   }

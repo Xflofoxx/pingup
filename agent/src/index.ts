@@ -14,7 +14,8 @@ import { collectContainers } from "./collectors/containers.ts";
 import { collectGPU } from "./collectors/gpu.ts";
 import { collectWiFi } from "./collectors/wifi.ts";
 import { runCustomScripts } from "./collectors/customScripts.ts";
-import { HTTPSender, type Command } from "./transport/index.ts";
+import { HTTPSender } from "./transport/index.ts";
+import { executeCommand } from "./commands.ts";
 import { runDiscovery } from "./discovery/scanner.ts";
 import { Hono } from "hono";
 
@@ -28,37 +29,6 @@ async function sign(data: string, secret: string): Promise<string> {
   );
   const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
   return btoa(String.fromCharCode(...new Uint8Array(signature)));
-}
-
-async function executeCommand(command: Command): Promise<{ success: boolean; message: string }> {
-  const { action, params } = command;
-  
-  console.log(`Executing command: ${action}`, params);
-  
-  switch (action) {
-    case "ping": {
-      return { success: true, message: "pong" };
-    }
-    case "restart_service": {
-      const service = params?.service || "unknown";
-      console.log(`Restarting service: ${service}`);
-      return { success: true, message: `Service ${service} restart triggered` };
-    }
-    case "update_config": {
-      return { success: true, message: "Config update triggered" };
-    }
-    case "execute": {
-      const cmd = params?.command;
-      if (cmd) {
-        const proc = Bun.spawn(cmd.split(" "));
-        const output = await new Response(proc.stdout).text();
-        return { success: true, message: output || "Command executed" };
-      }
-      return { success: false, message: "No command specified" };
-    }
-    default:
-      return { success: false, message: `Unknown action: ${action}` };
-  }
 }
 
 async function collectAllMetrics(config: ReturnType<typeof getConfig>): Promise<Record<string, unknown>> {
@@ -682,7 +652,14 @@ const payload = {
       
       const commands = await sender.fetchCommands();
       for (const cmd of commands) {
-        const result = await executeCommand(cmd);
+        console.log(`Executing command: ${cmd.action}`, cmd.params);
+        const result = await executeCommand(cmd, {
+          agentId: config.agent_id,
+          discoveryRanges: config.discovery?.ranges,
+          discoveryPorts: config.discovery?.ports,
+          snmpCommunity: config.discovery?.snmpCommunity,
+          sendDiscovery: (agentId, discovery) => sender.sendDiscovery(agentId, discovery),
+        });
         await sender.reportCommandResult(cmd.commandId, result);
       }
       

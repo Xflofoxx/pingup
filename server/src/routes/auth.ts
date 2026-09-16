@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { registerUser, loginUser, verifyToken, logoutUser, SignJWT } from "../services/auth.ts";
-import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword, getUserByUsername, logAudit, createUser, updateLastLogin, createSession } from "../services/users.ts";
+import { listUsers, getUserById, updateUserRole, setUserStatus, deleteUser, hasRole, getAuditLog, hashPassword, verifyPassword, getUserByUsername, logAudit, createUser, updateLastLogin, createSession, DEMO_USERS } from "../services/users.ts";
 
 const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "pingup-secret-key-change-in-production");
 
@@ -24,7 +24,7 @@ function isLocalhost(c: any): boolean {
   return host === "localhost:3000" || host === "127.0.0.1:3000" || host === "localhost" || host === "127.0.0.1";
 }
 
-const LOCALHOST_ONLY_USERS = ["test", "admin"];
+const LOCALHOST_ONLY_USERS = ["test", "admin", ...DEMO_USERS.map((d) => d.username)];
 
 export const authRouter = new Hono();
 

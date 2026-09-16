@@ -130,26 +130,44 @@ export async function checkPort(ip: string, port: number, timeout: number): Prom
 }
 
 const Dialer = {
-  connect: async (host: string, options: { port: number; timeout: number }): Promise<Bun.TCPConnection> => {
+  connect: (host: string, options: { port: number; timeout: number }): Promise<Bun.TCPConnection> => {
     return new Promise((resolve, reject) => {
-      const conn = Bun.connect({
+      let settled = false;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+
+      const settle = (fn: () => void) => {
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        fn();
+      };
+
+      const connection = Bun.connect({
         hostname: host,
         port: options.port,
         socket: {
           data() {},
-          close() {},
-          error(e) {
-            reject(e);
+          close() {
+            settle(() => reject(new Error("Connection closed")));
           },
-          open() {
-            resolve(conn);
+          error(e) {
+            settle(() => reject(e));
+          },
+          open(socket) {
+            settle(() => resolve(socket));
           },
         },
       });
-      
-      setTimeout(() => {
-        conn.close();
-        reject(new Error("Timeout"));
+
+      connection.catch((e) => {
+        settle(() => reject(e));
+      });
+
+      timer = setTimeout(() => {
+        settle(() => {
+          connection.then((socket) => socket.close()).catch(() => {});
+          reject(new Error("Timeout"));
+        });
       }, options.timeout);
     });
   },

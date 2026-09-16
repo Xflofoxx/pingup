@@ -15,12 +15,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Network SIEM (SERV-044): device profiling via SNMP + banners, `@pingup/vulns` detection engine
 - SIEM APIs `/api/v1/siem/*` and `/dashboard/siem` posture page
 - Real-time `siem` SSE channel updates after discovery scans
+- Dashboard CRUD for agents and commands (create, edit, delete) with CSV/JSON export
+- Network scan trigger from the dashboard (`POST /api/v1/discovery/scan` → `run_discovery` agent command)
+- 2D topology map at `/dashboard/topology` rendered as an interactive SVG graph
+- Demo users (admin/sup/it/pub) shown on the login page in development mode
+- Root dev runner (`bun run dev`) to start server and agent without Docker
 
 ### Changed
 - Updated development setup instructions
+- Agent command handling extracted into `agent/src/commands.ts`
 
 ### Fixed
-- Resolved client-side JavaScript parsing issues in bun
+- Agent discovery scanner imported shared libs with a wrong relative path, preventing startup
+- Agent now parses command `params` sent as JSON strings by the server (all parameterized commands were broken)
+- Scanner `Dialer.connect` hung forever on connection attempts; timeout and socket lifecycle are now handled correctly
 
 ## [0.1.0] - 2026-02-27
 

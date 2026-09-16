@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { verifyToken } from "../services/auth.ts";
-import { hasRole, getUserById } from "../services/users.ts";
-import { getAgent, listAgents } from "../services/agent.ts";
+import { hasRole, getUserById, DEMO_USERS, type DemoUser } from "../services/users.ts";
+import { listAgents } from "../services/agent.ts";
 import { getAgentMetrics } from "../services/metrics.ts";
 import { getDb } from "../db/sqlite.ts";
 
@@ -884,7 +884,75 @@ const PUBLIC_DASHBOARD = `
 </html>
 `;
 
-function getLoginPage() {
+function demoUsersHtml(): string {
+  const style: Record<DemoUser["role"], { badge: string; icon: string }> = {
+    ADM: { badge: "bg-rose-500/20 text-rose-300 border-rose-500/30", icon: "fa-crown" },
+    SUP: { badge: "bg-purple-500/20 text-purple-300 border-purple-500/30", icon: "fa-shield-halved" },
+    IT: { badge: "bg-blue-500/20 text-blue-300 border-blue-500/30", icon: "fa-screwdriver-wrench" },
+    PUB: { badge: "bg-gray-500/20 text-gray-300 border-gray-500/30", icon: "fa-eye" },
+  };
+
+  const rows = DEMO_USERS.map((d) => {
+    const s = style[d.role];
+    return `
+            <button type="button" onclick="useDemo('${d.username}','${d.password}')"
+              class="w-full flex items-center justify-between text-left px-3 py-2.5 rounded-xl bg-gray-800/50 border border-gray-700 hover:border-purple-500/50 transition group">
+              <div class="flex items-center gap-3">
+                <span class="text-[10px] font-bold px-2 py-1 rounded-lg border ${s.badge}">
+                  <i class="fas ${s.icon} mr-1"></i>${d.role}
+                </span>
+                <div>
+                  <p class="text-sm text-white font-medium">${d.username}</p>
+                  <p class="text-xs text-gray-500"><i class="fas fa-key mr-1"></i>${d.password}</p>
+                </div>
+              </div>
+              <span class="text-xs text-gray-500 group-hover:text-purple-300 transition"><i class="fas fa-arrow-right"></i> Usa</span>
+            </button>`;
+  }).join("");
+
+  return `
+      <div class="card-glass rounded-2xl p-6 mt-6">
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-sm font-semibold text-gray-300">
+            <i class="fas fa-flask text-purple-400 mr-2"></i>Utenti dimostrativi
+          </h2>
+          <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">DEV</span>
+        </div>
+        <p class="text-xs text-gray-500 mb-4">Un account per ogni livello di accesso. Disponibili solo da <code class="text-gray-400">localhost</code> in modalità dev.</p>
+        <div class="space-y-2">${rows}</div>
+        <p class="text-xs text-gray-600 mt-4"><i class="fas fa-info-circle mr-1"></i>Clicca <span class="text-gray-400">Usa</span> per precompilare il modulo nella scheda Password.</p>
+      </div>`;
+}
+
+function useDemoScript(): string {
+  return `
+    function useDemo(username, password) {
+      var tabPassword = document.getElementById('tabPassword');
+      var tabTOTP = document.getElementById('tabTOTP');
+      var passwordSection = document.getElementById('passwordSection');
+      var totpSection = document.getElementById('totpSection');
+      if (tabPassword && tabTOTP && passwordSection && totpSection) {
+        tabPassword.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white transition';
+        tabTOTP.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-400 transition';
+        passwordSection.style.display = 'block';
+        totpSection.style.display = 'none';
+      }
+      var form = document.getElementById('passwordForm');
+      if (form) {
+        form.querySelector('[name="username"]').value = username;
+        form.querySelector('[name="password"]').value = password;
+      }
+      var error = document.getElementById('error');
+      if (error) {
+        error.style.display = 'none';
+        error.innerHTML = 'Accesso come <strong>' + username + '</strong> (' + username.replace('demo.', '') + ')';
+        error.className = 'mt-4 p-4 bg-purple-500/20 border border-purple-500/30 rounded-xl text-purple-300 text-sm';
+        error.style.display = 'block';
+      }
+    }`;
+}
+
+export function getLoginPage(showDemoUsers: boolean = process.env.NODE_ENV !== "production") {
   return HTML_HEADER + `
   <div class="min-h-screen flex items-center justify-center relative overflow-hidden">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -964,6 +1032,8 @@ function getLoginPage() {
           </a>
         </div>
       </div>
+
+      ${showDemoUsers ? demoUsersHtml() : ""}
     </div>
   </div>
 
@@ -983,7 +1053,7 @@ function getLoginPage() {
           totpSection.style.display = 'none';
         };
         
-        tabTOTP.onclick = function() {
+tabTOTP.onclick = function() {
           tabTOTP.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white transition';
           tabPassword.className = 'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-gray-400 transition';
           totpSection.style.display = 'block';
@@ -991,6 +1061,8 @@ function getLoginPage() {
         };
       }
     });
+
+    ${showDemoUsers ? useDemoScript() : ""}
   </script>
 </body>
 </html>
@@ -1165,6 +1237,9 @@ function getDashboardLayout(user: { username: string; role: string }) {
         </a>
         <a href="/dashboard/commands" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
           <i class="fas fa-terminal w-5"></i> <span class="nav-text font-medium">Comandi</span>
+        </a>
+        <a href="/dashboard/topology" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition border border-transparent hover:border-white/5 btn">
+          <i class="fas fa-project-diagram w-5"></i> <span class="nav-text font-medium">Topologia</span>
         </a>
         ` : ''}
         
@@ -1469,8 +1544,27 @@ dashboardRouter.get("/dashboard/commands", async (c) => {
   const user = getUserById(payload.sub);
   const db = getDb();
   const commands = db.prepare("SELECT * FROM commands ORDER BY created_at DESC LIMIT 50").all();
+  const agents = listAgents();
   
-  return c.html(getCommandsPage({ username: user!.username, role: user!.role }, commands));
+  return c.html(getCommandsPage({ username: user!.username, role: user!.role }, commands, agents));
+});
+
+dashboardRouter.get("/dashboard/topology", async (c) => {
+  const token = getCookie(c, "auth_token");
+  
+  if (!token) {
+    return c.redirect("/login");
+  }
+  
+  const payload = await verifyToken(token);
+  
+  if (!payload || !hasRole(payload.role, "IT")) {
+    return c.redirect("/dashboard");
+  }
+  
+  const user = getUserById(payload.sub);
+  
+  return c.html(getTopologyPage({ username: user!.username, role: user!.role }));
 });
 
 dashboardRouter.get("/dashboard/users", async (c) => {
@@ -1550,9 +1644,10 @@ dashboardRouter.get("/dashboard/siem", async (c) => {
   const overview = getSiemOverview();
   const assets = listSiemAssets();
   const findings = listSiemFindings({ status: "open" });
+  const agents = listAgents();
   
   return c.html(
-    getSiemPage({ username: user!.username, role: user!.role }, overview, assets, findings)
+    getSiemPage({ username: user!.username, role: user!.role }, overview, assets, findings, agents)
   );
 });
 
@@ -1734,12 +1829,38 @@ function getResetPasswordPage(username: string, resetToken: string, error?: stri
 function getAgentsPage(user: { username: string; role: string }, agents: any[]) {
   return getDashboardLayout(user) + `
     <div class="mb-8">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 class="text-3xl font-bold text-white">Agenti</h1>
           <p class="text-gray-400 mt-1">Gestisci gli agenti di monitoraggio</p>
         </div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <button onclick="document.getElementById('addAgentForm').classList.toggle('hidden')"
+            class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm font-semibold transition">
+            <i class="fas fa-plus mr-2"></i>Nuovo agente
+          </button>
+          <button onclick="exportCSV(window.__agents, 'agenti.csv')"
+            class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium border border-white/10 transition">
+            <i class="fas fa-file-csv mr-2"></i>CSV
+          </button>
+          <button onclick="exportJSON(window.__agents, 'agenti.json')"
+            class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium border border-white/10 transition">
+            <i class="fas fa-file-code mr-2"></i>JSON
+          </button>
+        </div>
       </div>
+    </div>
+
+    <div id="addAgentForm" class="hidden glass-card rounded-3xl p-6 mb-6">
+      <h2 class="text-lg font-semibold text-white mb-4"><i class="fas fa-server text-blue-400 mr-2"></i>Registra nuovo agente</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input type="text" id="agentIdInput" placeholder="ID agente (es. AGENT-002)" class="bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+        <input type="text" id="agentNameInput" placeholder="Nome (es. Server Milano)" class="bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+        <button onclick="createAgent()" class="px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold transition">
+          <i class="fas fa-check mr-2"></i>Crea
+        </button>
+      </div>
+      <div id="agentFormError" class="mt-3 text-sm text-red-400 hidden"></div>
     </div>
     
     <div class="glass-card rounded-3xl p-8">
@@ -1767,9 +1888,20 @@ function getAgentsPage(user: { username: string; role: string }, agents: any[]) 
               </td>
               <td class="py-4 text-gray-400 text-sm">${agent.last_seen || 'Mai'}</td>
               <td class="py-4">
-                <button class="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition text-sm">
-                  <i class="fas fa-eye"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                  <button onclick="scanAgent('${agent.id}')" title="Avvia scansione rete"
+                    class="px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition text-sm">
+                    <i class="fas fa-broadcast-tower"></i>
+                  </button>
+                  <button onclick="renameAgent('${agent.id}')" title="Rinomina"
+                    class="px-3 py-1.5 rounded-lg bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition text-sm">
+                    <i class="fas fa-pen"></i>
+                  </button>
+                  <button onclick="deleteAgent('${agent.id}')" title="Elimina"
+                    class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </td>
             </tr>
             `).join('')}
@@ -1778,18 +1910,96 @@ function getAgentsPage(user: { username: string; role: string }, agents: any[]) 
         </table>
       </div>
     </div>
+
+    <script>
+      window.__agents = ${JSON.stringify(agents.map(a => ({ id: a.id, name: a.name, status: a.status, last_seen: a.last_seen })))};
+
+      function createAgent() {
+        var id = document.getElementById('agentIdInput').value.trim();
+        var name = document.getElementById('agentNameInput').value.trim();
+        var err = document.getElementById('agentFormError');
+        err.classList.add('hidden');
+        if (!id) { err.textContent = 'ID agente obbligatorio'; err.classList.remove('hidden'); return; }
+        apiJson('POST', '/api/v1/agents', { id: id, name: name || undefined })
+          .then(function() { toast('Agente ' + id + ' creato', true); location.reload(); })
+          .catch(function(e) { err.textContent = e.message; err.classList.remove('hidden'); });
+      }
+
+      function scanAgent(id) {
+        apiJson('POST', '/api/v1/discovery/scan', { agentId: id })
+          .then(function(d) { toast('Scansione avviata per ' + id + ' (attesa agente)', true); })
+          .catch(function(e) { toast(e.message, false); });
+      }
+
+      function renameAgent(id) {
+        var name = window.prompt('Nuovo nome per ' + id);
+        if (name === null) return;
+        apiJson('PATCH', '/api/v1/agents/' + encodeURIComponent(id), { name: name })
+          .then(function() { toast('Agente rinominato', true); location.reload(); })
+          .catch(function(e) { toast(e.message, false); });
+      }
+
+      function deleteAgent(id) {
+        if (!window.confirm('Eliminare l\\'agente ' + id + '?')) return;
+        apiJson('DELETE', '/api/v1/agents/' + encodeURIComponent(id))
+          .then(function() { toast('Agente eliminato', true); location.reload(); })
+          .catch(function(e) { toast(e.message, false); });
+      }
+    </script>
   ` + getDashboardFooter();
 }
 
-function getCommandsPage(user: { username: string; role: string }, commands: any[]) {
+function getCommandsPage(user: { username: string; role: string }, commands: any[], agents: any[] = []) {
+  const actions = ["ping", "run_discovery", "restart_service", "update_config", "execute"];
   return getDashboardLayout(user) + `
     <div class="mb-8">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 class="text-3xl font-bold text-white">Comandi</h1>
-          <p class="text-gray-400 mt-1">Cronologia comandi eseguiti</p>
+          <p class="text-gray-400 mt-1">Invia comandi remoti agli agenti</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="document.getElementById('addCommandForm').classList.toggle('hidden')"
+            class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm font-semibold transition">
+            <i class="fas fa-plus mr-2"></i>Nuovo comando
+          </button>
+          <button onclick="exportCSV(window.__commands, 'comandi.csv')"
+            class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium border border-white/10 transition">
+            <i class="fas fa-file-csv mr-2"></i>CSV
+          </button>
+          <button onclick="exportJSON(window.__commands, 'comandi.json')"
+            class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium border border-white/10 transition">
+            <i class="fas fa-file-code mr-2"></i>JSON
+          </button>
         </div>
       </div>
+    </div>
+
+    <div id="addCommandForm" class="hidden glass-card rounded-3xl p-6 mb-6">
+      <h2 class="text-lg font-semibold text-white mb-4"><i class="fas fa-terminal text-purple-400 mr-2"></i>Invia comando</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Agente</label>
+          <select id="cmdAgent" class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+            ${agents.map(a => `<option value="${a.id}">${a.name || a.id}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Azione</label>
+          <select id="cmdAction" onchange="document.getElementById('cmdParamRow').style.display = this.value === 'execute' || this.value === 'restart_service' ? 'block' : 'none'"
+            class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+            ${actions.map(a => `<option value="${a}">${a}</option>`).join('')}
+          </select>
+        </div>
+        <div id="cmdParamRow" class="hidden md:col-span-2">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Parametri (JSON)</label>
+          <input type="text" id="cmdParams" placeholder='{"command":"ipconfig"}' class="w-full bg-gray-800/50 border border-gray-600 rounded-xl px-4 py-3 text-white font-mono text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+        </div>
+        <button onclick="sendCommand()" class="px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold transition">
+          <i class="fas fa-paper-plane mr-2"></i>Invia
+        </button>
+      </div>
+      <div id="commandFormError" class="mt-3 text-sm text-red-400 hidden"></div>
     </div>
     
     <div class="glass-card rounded-3xl p-8">
@@ -1801,7 +2011,9 @@ function getCommandsPage(user: { username: string; role: string }, commands: any
               <th class="pb-4 font-medium">Agente</th>
               <th class="pb-4 font-medium">Azione</th>
               <th class="pb-4 font-medium">Stato</th>
+              <th class="pb-4 font-medium">Risultato</th>
               <th class="pb-4 font-medium">Data</th>
+              <th class="pb-4 font-medium"></th>
             </tr>
           </thead>
           <tbody>
@@ -1815,14 +2027,50 @@ function getCommandsPage(user: { username: string; role: string }, commands: any
                   ${cmd.status}
                 </span>
               </td>
+              <td class="py-4 text-gray-400 text-sm max-w-[280px] truncate">${cmd.result || '-'}</td>
               <td class="py-4 text-gray-400 text-sm">${cmd.created_at}</td>
+              <td class="py-4 text-right">
+                <button onclick="deleteCommand('${cmd.id}')" title="Elimina"
+                  class="px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition text-sm">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
             </tr>
             `).join('')}
-            ${commands.length === 0 ? '<tr><td colspan="5" class="py-12 text-center text-gray-500"><i class="fas fa-terminal text-4xl mb-3 opacity-30"></i><p>Nessun comando eseguito</p></td></tr>' : ''}
+            ${commands.length === 0 ? '<tr><td colspan="7" class="py-12 text-center text-gray-500"><i class="fas fa-terminal text-4xl mb-3 opacity-30"></i><p>Nessun comando eseguito</p></td></tr>' : ''}
           </tbody>
         </table>
       </div>
     </div>
+
+    <script>
+      window.__commands = ${JSON.stringify(commands.map(cm => ({ id: cm.id, agent_id: cm.agent_id, action: cm.action, status: cm.status, result: typeof cm.result === 'string' ? cm.result : JSON.stringify(cm.result || ''), created_at: cm.created_at })))};
+
+      function sendCommand() {
+        var agentId = document.getElementById('cmdAgent').value;
+        var action = document.getElementById('cmdAction').value;
+        var paramsRaw = document.getElementById('cmdParams').value.trim();
+        var err = document.getElementById('commandFormError');
+        err.classList.add('hidden');
+
+        var params = {};
+        if (paramsRaw) {
+          try { params = JSON.parse(paramsRaw); }
+          catch (e) { err.textContent = 'Parametri non validi: ' + e.message; err.classList.remove('hidden'); return; }
+        }
+
+        apiJson('POST', '/api/v1/commands', { agent_id: agentId, action: action, params: params })
+          .then(function() { toast('Comando ' + action + ' inviato a ' + agentId, true); location.reload(); })
+          .catch(function(e) { err.textContent = e.message; err.classList.remove('hidden'); });
+      }
+
+      function deleteCommand(id) {
+        if (!window.confirm('Eliminare il comando ' + id + '?')) return;
+        apiJson('DELETE', '/api/v1/commands/' + encodeURIComponent(id))
+          .then(function() { toast('Comando eliminato', true); location.reload(); })
+          .catch(function(e) { toast(e.message, false); });
+      }
+    </script>
   ` + getDashboardFooter();
 }
 
@@ -2047,7 +2295,8 @@ function getSiemPage(
   user: { username: string; role: string },
   overview: any,
   assets: any[],
-  findings: any[]
+  findings: any[],
+  agents: any[] = []
 ) {
   const critical = overview.bySeverity?.critical || 0;
   const high = overview.bySeverity?.high || 0;
@@ -2056,15 +2305,27 @@ function getSiemPage(
 
   return getDashboardLayout(user) + `
     <div class="mb-8">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 class="text-3xl font-bold text-white">SIEM</h1>
           <p class="text-gray-400 mt-1">Monitoraggio vulnerabilità dispositivi di rete</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
           <span class="px-4 py-2 rounded-xl bg-white/5 text-gray-300 text-sm font-medium border border-white/10">
             <i class="fas fa-clock text-blue-400 mr-2"></i>Ultimo scan: ${overview.lastScan || 'Mai'}
           </span>
+          <select id="siemAgent" class="bg-gray-800/50 border border-gray-600 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+            ${agents.map(a => `<option value="${a.id}">${a.name || a.id}</option>`).join('')}
+            ${agents.length === 0 ? '<option value="">Nessun agente</option>' : ''}
+          </select>
+          <button onclick="scanSiem()" ${agents.length === 0 ? 'disabled' : ''}
+            class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm font-semibold transition ${agents.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}">
+            <i class="fas fa-broadcast-tower mr-2"></i>Avvia scansione
+          </button>
+          <button onclick="exportFindings()"
+            class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium border border-white/10 transition">
+            <i class="fas fa-file-csv mr-2"></i>Export findings
+          </button>
         </div>
       </div>
     </div>
@@ -2189,6 +2450,192 @@ function getSiemPage(
         </table>
       </div>
     </div>
+
+    <script>
+      function scanSiem() {
+        var agentId = document.getElementById('siemAgent').value;
+        if (!agentId) { toast('Nessun agente disponibile', false); return; }
+        apiJson('POST', '/api/v1/discovery/scan', { agentId: agentId })
+          .then(function() { toast('Scansione avviata per ' + agentId + '. Aggiornamento non appena l\\'agente riporta i risultati.', true); })
+          .catch(function(e) { toast(e.message, false); });
+      }
+
+      function exportFindings() {
+        apiJson('GET', '/api/v1/siem/findings')
+          .then(function(d) { exportJSON(d.findings || [], 'siem-findings.json'); })
+          .catch(function(e) { toast(e.message, false); });
+      }
+
+      window.__siemAssets = ${JSON.stringify(assets.map(a => ({ ip: a.ip, hostname: a.hostname, device_type: a.device_type, vendor: a.vendor, os: a.os, risk_label: a.risk_label, risk_score: a.risk_score })))};
+    </script>
+  ` + getDashboardFooter();
+}
+
+function getTopologyPage(user: { username: string; role: string }) {
+  return getDashboardLayout(user) + `
+    <div class="mb-8">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 class="text-3xl font-bold text-white">Topologia di rete</h1>
+          <p class="text-gray-400 mt-1">Mappa 2D dei dispositivi rilevati (agent + discovery)</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <select id="topoAgent" class="bg-gray-800/50 border border-gray-600 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+            <option value="">Tutti gli agenti</option>
+          </select>
+          <button onclick="loadTopology()"
+            class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm font-semibold transition">
+            <i class="fas fa-sync mr-2"></i>Ricarica
+          </button>
+          <button onclick="exportTopology()"
+            class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-medium border border-white/10 transition">
+            <i class="fas fa-file-code mr-2"></i>JSON
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card rounded-3xl p-6">
+      <div id="topologyError" class="hidden mb-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl text-red-300 text-sm"></div>
+      <div id="topologyWrap" class="overflow-auto rounded-2xl border border-white/5 bg-white/[0.02]">
+        <div id="topologyLoading" class="flex items-center justify-center py-24 text-gray-400">
+          <i class="fas fa-spinner fa-spin mr-3"></i>Caricamento topologia...
+        </div>
+        <svg id="topology" width="100%" height="640" xmlns="http://www.w3.org/2000/svg" style="display:none; min-width: 900px;"></svg>
+      </div>
+      <div id="topoDetails" class="hidden mt-4 glass-card rounded-2xl p-5"></div>
+    </div>
+
+    <script>
+      var NODE_COLORS = {
+        agent: '#60a5fa',
+        router: '#f87171',
+        switch: '#fb923c',
+        server: '#34d399',
+        workstation: '#a78bfa',
+        iot: '#fbbf24',
+        unknown: '#94a3b8'
+      };
+      var NODE_SIZE = { agent: 26, router: 22, switch: 20, server: 18, workstation: 16, iot: 14, unknown: 14 };
+
+      window.__topologyCache = { nodes: [], links: [] };
+      window.__topologyAgents = [];
+
+      function loadAgents() {
+        apiJson('GET', '/api/v1/agents')
+          .then(function(d) {
+            window.__topologyAgents = d.agents || [];
+            var sel = document.getElementById('topoAgent');
+            var opts = '<option value="">Tutti gli agenti</option>' + (d.agents || []).map(function(a) {
+              return '<option value="' + a.id + '">' + (a.name || a.id) + '</option>';
+            }).join('');
+            sel.innerHTML = opts;
+          }).catch(function(e) { showTopologyError(e.message); });
+      }
+
+      function loadTopology() {
+        var agentId = document.getElementById('topoAgent').value;
+        var url = '/api/v1/topology';
+        if (agentId) url += '?agentId=' + encodeURIComponent(agentId);
+        document.getElementById('topologyLoading').style.display = 'flex';
+        document.getElementById('topology').style.display = 'none';
+        document.getElementById('topologyError').classList.add('hidden');
+        apiJson('GET', url)
+          .then(function(data) {
+            window.__topologyCache = data;
+            drawTopology(data);
+          })
+          .catch(function(e) { showTopologyError(e.message); });
+      }
+
+      function showTopologyError(msg) {
+        var el = document.getElementById('topologyError');
+        el.textContent = 'Errore: ' + msg;
+        el.classList.remove('hidden');
+        document.getElementById('topologyLoading').style.display = 'none';
+      }
+
+      function drawTopology(data) {
+        var svg = document.getElementById('topology');
+        var nodes = data.nodes || [];
+        var links = data.links || [];
+        var w = Math.max(900, nodes.length * 90);
+        var h = Math.max(640, nodes.length * 60);
+        svg.setAttribute('width', w);
+        svg.setAttribute('height', h);
+
+        var pos = {};
+        var count = nodes.length;
+        var cx = w / 2, cy = h / 2;
+        var radius = Math.min(w, h) / 2 - 60;
+        nodes.forEach(function(n, i) {
+          var angle = (2 * Math.PI * i) / Math.max(1, count);
+          pos[n.id] = { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
+        });
+
+        var seen = {};
+        var out = '';
+        links.forEach(function(l) {
+          var s = pos[l.source], t = pos[l.target];
+          var key = [l.source, l.target].sort().join('|');
+          if (!s || !t || seen[key]) return;
+          seen[key] = true;
+          out += '<line x1="' + s.x.toFixed(1) + '" y1="' + s.y.toFixed(1) + '" x2="' + t.x.toFixed(1) + '" y2="' + t.y.toFixed(1) + '" stroke="rgba(148,163,184,0.35)" stroke-width="1.5" />';
+        });
+
+        nodes.forEach(function(n) {
+          var p = pos[n.id];
+          if (!p) return;
+          var color = NODE_COLORS[n.type] || NODE_COLORS.unknown;
+          var size = NODE_SIZE[n.type] || NODE_SIZE.unknown;
+          out += '<g onclick="showDevice(\'' + (n.ip || n.id).replace(/'/g, '') + '\')" style="cursor:pointer">';
+          out += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + size + '" fill="' + color + '" fill-opacity="0.25" stroke="' + color + '" stroke-width="2" />';
+          out += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + (size - 6) + '" fill="' + color + '" />';
+          out += '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - size - 6).toFixed(1) + '" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Inter, sans-serif">' + (n.label || n.id).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</text>';
+          out += '<text x="' + p.x.toFixed(1) + '" y="' + (p.y + size + 14).toFixed(1) + '" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="Inter, sans-serif">' + (n.type || '') + '</text>';
+          out += '</g>';
+        });
+
+        svg.innerHTML = out;
+        document.getElementById('topologyLoading').style.display = 'none';
+        svg.style.display = 'block';
+        if (count === 0) {
+          showTopologyError('Nessun nodo disponibile. Esegui una scansione di rete.');
+        }
+      }
+
+      function showDevice(ip) {
+        if (!ip || ip === 'unknown') { renderDeviceList(''); return; }
+        apiJson('GET', '/api/v1/topology/device/' + encodeURIComponent(ip))
+          .then(function(d) { renderDeviceList(d); })
+          .catch(function(e) { renderDeviceList(null); });
+      }
+
+      function renderDeviceList(d) {
+        var box = document.getElementById('topoDetails');
+        box.classList.remove('hidden');
+        if (!d) {
+          box.innerHTML = '<p class="text-sm text-gray-400">Nessun dettaglio disponibile per questo nodo.</p>';
+          return;
+        }
+        box.innerHTML = '<div class="flex items-center justify-between mb-3">' +
+          '<h3 class="text-lg font-semibold text-white"><i class="fas fa-network-wired text-blue-400 mr-2"></i>' + d.ip + '</h3>' +
+          '<button onclick="document.getElementById(\'topoDetails\').classList.add(\'hidden\')" class="text-gray-500 hover:text-white"><i class="fas fa-times"></i></button></div>' +
+          '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">' +
+          '<div><p class="text-gray-500 text-xs">Latenza</p><p class="text-white">' + (d.latency ?? '-') + ' ms</p></div>' +
+          '<div><p class="text-gray-500 text-xs">Porte aperte</p><p class="text-white font-mono">' + ((d.ports || []).join(', ') || '-') + '</p></div>' +
+          '<div><p class="text-gray-500 text-xs">Durata scan</p><p class="text-white">' + (d.scan_duration ?? '-') + ' ms</p></div>' +
+          '<div><p class="text-gray-500 text-xs">Ultimo rilevamento</p><p class="text-white">' + (d.last_seen || '-') + '</p></div>' +
+          '</div>';
+      }
+
+      function exportTopology() {
+        exportJSON(window.__topologyCache, 'topologia.json');
+      }
+
+      loadAgents();
+      loadTopology();
+    </script>
   ` + getDashboardFooter();
 }
 
@@ -2196,6 +2643,56 @@ function getDashboardFooter() {
   return `
     </main>
   </div>
+  <script>
+    function apiJson(method, url, body) {
+      return fetch(url, {
+        method: method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      }).then(function(res) {
+        if (!res.ok) return res.json().then(function(d) { throw new Error(d.error || d.message || 'Errore ' + res.status); });
+        return res.json();
+      });
+    }
+
+    function download(filename, content, mime) {
+      var blob = new Blob([content], { type: mime });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() { URL.revokeObjectURL(a.href); a.remove(); }, 100);
+    }
+
+    function csvEscape(v) {
+      var s = String(v === undefined || v === null ? '' : v);
+      return /[",\\n\\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+
+    function exportCSV(rows, filename) {
+      var keys = [];
+      rows.forEach(function(r) { Object.keys(r).forEach(function(k) { if (keys.indexOf(k) === -1) keys.push(k); }); });
+      var lines = [keys.map(csvEscape).join(',')];
+      rows.forEach(function(r) {
+        lines.push(keys.map(function(k) { return csvEscape(r[k]); }).join(','));
+      });
+      download(filename, lines.join('\\n'), 'text/csv;charset=utf-8');
+    }
+
+    function exportJSON(data, filename) {
+      download(filename, JSON.stringify(data, null, 2), 'application/json;charset=utf-8');
+    }
+
+    function toast(msg, ok) {
+      var el = document.createElement('div');
+      el.className = 'fixed bottom-6 right-6 z-[100] px-5 py-3 rounded-xl text-sm font-medium border shadow-2xl ' +
+        (ok ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30');
+      el.textContent = msg;
+      document.body.appendChild(el);
+      setTimeout(function() { el.remove(); }, 4000);
+    }
+  </script>
   <script src="/dashboard.js"></script>
   <script src="/dashboard-features.js"></script>
 </body>

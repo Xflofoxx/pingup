@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { getAgent, listAgents, createAgent, deleteAgent, updateAgentStatus, setAgentOwner, verifyAgentAccess } from "../services/agent.ts";
+import { getAgent, listAgents, createAgent, deleteAgent, updateAgentStatus, setAgentOwner, verifyAgentAccess, updateAgent } from "../services/agent.ts";
 import { verifyToken } from "../services/auth.ts";
-import { verifyPassword, hashPassword } from "../services/users.ts";
+import { verifyPassword } from "../services/users.ts";
 import { getDb } from "../db/sqlite.ts";
 
 function getCookie(c: any, name: string): string | undefined {
@@ -55,6 +55,26 @@ agentsRouter.delete("/:id", (c) => {
   }
   
   return c.json({ success: true });
+});
+
+agentsRouter.patch("/:id", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json();
+
+  if (!body && typeof body !== "object") {
+    return c.json({ error: "Invalid payload" }, 400);
+  }
+
+  const agent = updateAgent(id, {
+    name: body.name,
+    metadata: body.metadata,
+  });
+
+  if (!agent) {
+    return c.json({ error: "Agent not found" }, 404);
+  }
+
+  return c.json({ agent });
 });
 
 agentsRouter.post("/:id/heartbeat", (c) => {

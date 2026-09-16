@@ -30,6 +30,37 @@ export interface AuditLog {
   timestamp: string;
 }
 
+export interface DemoUser {
+  username: string;
+  password: string;
+  role: "PUB" | "IT" | "SUP" | "ADM";
+  description: string;
+}
+
+export const DEMO_USERS: DemoUser[] = [
+  { username: "demo.admin", password: "PingupAdmin123!", role: "ADM", description: "Amministratore - accesso completo" },
+  { username: "demo.sup", password: "PingupSup123!", role: "SUP", description: "CISO / Sicurezza - dashboard SIEM" },
+  { username: "demo.it", password: "PingupIt123!", role: "IT", description: "Operazioni IT - agenti e comandi" },
+  { username: "demo.pub", password: "PingupPub123!", role: "PUB", description: "Visualizzatore pubblico - statistiche" },
+];
+
+export function ensureDemoUsers(): { created: string[]; skipped: string[] } {
+  const created: string[] = [];
+  const skipped: string[] = [];
+
+  for (const demo of DEMO_USERS) {
+    if (getUserByUsername(demo.username)) {
+      skipped.push(demo.username);
+      continue;
+    }
+    const passwordHash = hashPassword(demo.password);
+    createUser(demo.username, demo.role, undefined, passwordHash);
+    created.push(demo.username);
+  }
+
+  return { created, skipped };
+}
+
 const ROLE_HIERARCHY: Record<string, number> = {
   ADM: 4,
   SUP: 3,

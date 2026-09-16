@@ -1,0 +1,14 @@
+{
+  "name": "pingup",
+  "version": "1.9.0",
+  "private": true,
+  "type": "module",
+  "description": "Lightweight network monitoring agent and server",
+  "scripts": {
+    "install:all": "bun install --cwd server && bun install --cwd agent",
+    "migrate": "bun run --cwd server src/db/migrate.ts",
+    "dev": "bun run scripts/dev.ts",
+    "dev:server": "bun run --cwd server --watch src/index.ts",
+    "dev:agent": "bun run --cwd agent --watch src/index.ts"
+  }
+}

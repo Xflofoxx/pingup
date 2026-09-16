@@ -40,6 +40,7 @@ import { siemRouter } from "./routes/siem.ts";
 import { logger } from "./utils/logger.ts";
 import { listAgents } from "./services/agent.ts";
 import { getDeviceCount } from "./db/duckdb.ts";
+import { ensureDemoUsers } from "./services/users.ts";
 import { serveStatic } from "hono/bun";
 
 const app = new Hono();
@@ -152,6 +153,13 @@ const PORT = serverConfig.port;
 logger.info(`Starting Pingup Server on ${serverConfig.host}:${PORT}`);
 
 initNotificationsTable();
+
+if (process.env.NODE_ENV !== "production") {
+  const { created, skipped } = ensureDemoUsers();
+  logger.info(
+    `Demo users ready (dev mode): created ${created.length}, already present ${skipped.length}`
+  );
+}
 
 export default {
   port: PORT,

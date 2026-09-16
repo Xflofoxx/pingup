@@ -8,7 +8,8 @@ import {
   getOrCreateAgent,
   setAgentOwner,
   verifyAgentAccess,
-  updateAgentOwner
+  updateAgentOwner,
+  updateAgent
 } from "../../src/services/agent";
 import { getDb } from "../../src/db/sqlite";
 
@@ -132,5 +133,27 @@ describe("Agent Service", () => {
 
     const updated = getAgent("update-owner-agent");
     expect(updated?.owner_id).toBe("updated-owner");
+  });
+
+  test("updateAgent should update name and metadata", () => {
+    createAgent({ id: "patch-agent", name: "Old name" });
+
+    const updated = updateAgent("patch-agent", { name: "New name", metadata: { ip: "10.0.0.1" } });
+
+    expect(updated).toBeDefined();
+    expect(updated?.name).toBe("New name");
+    expect(updated?.metadata).toContain("10.0.0.1");
+  });
+
+  test("updateAgent should keep existing values when not provided", () => {
+    createAgent({ id: "patch-agent-2", name: "Keep me" });
+
+    const updated = updateAgent("patch-agent-2", {});
+
+    expect(updated?.name).toBe("Keep me");
+  });
+
+  test("updateAgent should return undefined for non-existent agent", () => {
+    expect(updateAgent("nope", { name: "x" })).toBeUndefined();
   });
 });
